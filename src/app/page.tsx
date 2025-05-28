@@ -2,7 +2,7 @@
 import React, { useRef } from "react";
 import { useRouter } from "next/navigation";
 export default function Home() {
-  const servicesRef = useRef<HTMLDivElement>(null);
+  const servicesRef = useRef<HTMLDivElement>(null);//hello comment branch 
   const router = useRouter();
 
   const navigate = (path: string) => {
