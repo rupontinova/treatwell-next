@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
+const crypto = require('crypto');
 
 const PatientSchema = new mongoose.Schema({
   username: {
@@ -26,9 +27,28 @@ const PatientSchema = new mongoose.Schema({
   },
   password: {
     type: String,
-    required: [true, 'Please provide a password'],
+    required: function() {
+      return !this.googleId; // Password required only if no Google ID
+    },
     minlength: [6, 'Password must be at least 6 characters long'],
     select: false
+  },
+  googleId: {
+    type: String,
+    unique: true,
+    sparse: true // Allows multiple null values
+  },
+  profilePicture: {
+    type: String,
+    default: null
+  },
+  resetPasswordToken: {
+    type: String,
+    default: null
+  },
+  resetPasswordExpire: {
+    type: Date,
+    default: null
   },
   gender: {
     type: String,
@@ -77,6 +97,23 @@ PatientSchema.methods.getSignedJwtToken = function() {
 // Match user entered password to hashed password in database
 PatientSchema.methods.matchPassword = async function(enteredPassword) {
   return await bcrypt.compare(enteredPassword, this.password);
+};
+
+// Generate and hash password token
+PatientSchema.methods.getResetPasswordToken = function() {
+  // Generate token
+  const resetToken = crypto.randomBytes(20).toString('hex');
+
+  // Hash token and set to resetPasswordToken field
+  this.resetPasswordToken = crypto
+    .createHash('sha256')
+    .update(resetToken)
+    .digest('hex');
+
+  // Set expire
+  this.resetPasswordExpire = Date.now() + 15 * 60 * 1000; // 15 minutes
+
+  return resetToken;
 };
 
 module.exports = mongoose.model('Patient', PatientSchema); 

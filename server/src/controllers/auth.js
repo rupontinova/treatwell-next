@@ -95,6 +95,17 @@ exports.login = async (req, res) => {
   }
 };
 
+// @desc    Get current logged in user
+// @route   GET /api/auth/me
+// @access  Private
+exports.getMe = async (req, res) => {
+  const patient = await Patient.findById(req.patient.id);
+  res.status(200).json({
+    success: true,
+    data: patient
+  });
+};
+
 // Get token from model, create cookie and send response
 const sendTokenResponse = (patient, statusCode, res) => {
   // Create token

@@ -26,8 +26,13 @@ export default function Home() {
   const [modalInfo, setModalInfo] = useState<{ feature: string; visible: boolean } | null>(null);
   const [showWelcome, setShowWelcome] = useState(false);
   const [welcomeMessage, setWelcomeMessage] = useState("");
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   useEffect(() => {
+    // Check if user is logged in
+    const token = localStorage.getItem('token');
+    setIsLoggedIn(!!token);
+
     // Check if we should show welcome message (only after login)
     const shouldShowWelcome = sessionStorage.getItem('showWelcome');
     if (shouldShowWelcome === 'true') {
@@ -138,12 +143,34 @@ export default function Home() {
           ))}
         </div>
         <div className="flex items-center gap-4">
-            <button
-                className="px-5 py-2.5 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 transition-all duration-300"
-                onClick={() => navigate("/login")}
-            >
-                Login
-            </button>
+            {isLoggedIn ? (
+              <>
+                <button
+                    className="px-5 py-2.5 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-green-700 transition-all duration-300"
+                    onClick={() => navigate("/profile")}
+                >
+                    Profile
+                </button>
+                <button
+                    className="px-5 py-2.5 bg-red-600 text-white font-semibold rounded-lg shadow-md hover:bg-red-700 transition-all duration-300"
+                    onClick={() => {
+                      localStorage.removeItem('token');
+                      localStorage.removeItem('user');
+                      setIsLoggedIn(false);
+                      window.location.reload();
+                    }}
+                >
+                    Logout
+                </button>
+              </>
+            ) : (
+              <button
+                  className="px-5 py-2.5 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 transition-all duration-300"
+                  onClick={() => navigate("/login")}
+              >
+                  Login
+              </button>
+            )}
             <button className="md:hidden p-2 rounded-md hover:bg-gray-100">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7" /></svg>
             </button>
