@@ -59,7 +59,7 @@ export default function ForgotPasswordPage() {
           </motion.div>
           <h2 className="text-2xl font-bold text-gray-900 mb-2">Forgot Password?</h2>
           <p className="text-gray-600 text-sm">
-            No worries! Enter your email address and we&apos;ll send you a link to reset your password.
+            No worries! Enter your email address and we'll send you a link to reset your password.
           </p>
         </div>
 

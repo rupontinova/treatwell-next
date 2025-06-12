@@ -87,7 +87,7 @@ export default function ResetPasswordPage() {
           
           <h2 className="text-2xl font-bold text-gray-900 mb-2">Password Reset Successful!</h2>
           <p className="text-gray-600 mb-6">
-            {message || 'Your password has been successfully updated. You will be redirected to the login page shortly.'}
+            Your password has been successfully updated. You will be redirected to the login page shortly.
           </p>
           
           <motion.button
@@ -122,7 +122,7 @@ export default function ResetPasswordPage() {
           </motion.div>
           <h2 className="text-2xl font-bold text-gray-900 mb-2">Reset Your Password</h2>
           <p className="text-gray-600 text-sm">
-            Please enter your new password below. Make sure it&apos;s strong and secure.
+            Please enter your new password below. Make sure it's strong and secure.
           </p>
         </div>
 

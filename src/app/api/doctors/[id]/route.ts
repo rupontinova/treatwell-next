@@ -16,7 +16,7 @@ export async function GET(
     }
 
     return NextResponse.json({ success: true, data: doctor });
-  } catch (error: unknown) {
-    return NextResponse.json({ success: false, message: (error as Error).message }, { status: 500 });
+  } catch (error: any) {
+    return NextResponse.json({ success: false, message: error.message }, { status: 500 });
   }
 } 

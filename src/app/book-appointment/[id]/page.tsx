@@ -35,8 +35,8 @@ export default function BookAppointment({ params }: { params: { id: string } }) 
           throw new Error(data.message || 'Failed to fetch doctor details');
         }
         setDoctor(data.data);
-      } catch (err: unknown) {
-        setError(err instanceof Error ? err.message : "Failed to fetch doctor details");
+      } catch (err: any) {
+        setError(err.message);
       } finally {
         setFetchingDoctor(false);
       }
@@ -102,8 +102,8 @@ export default function BookAppointment({ params }: { params: { id: string } }) 
       setTimeout(() => {
         router.push('/appointments');
       }, 2000);
-    } catch (err: unknown) {
-      setError(err instanceof Error ? err.message : "Failed to book appointment");
+    } catch (err: any) {
+      setError(err.message);
     } finally {
       setLoading(false);
     }

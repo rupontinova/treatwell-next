@@ -3,18 +3,12 @@ import React, { useRef, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Search, Stethoscope, Calendar, HeartPulse, User, Star, ShieldCheck } from 'lucide-react';
 import { Notification } from '@/components/Notification';
-import Image from 'next/image';
-import medicalBg from "/public/medical-bg.jpg";
-import doctor1 from "/public/doctor1.jpg";
-import doctor2 from "/public/doctor2.jpg";
-import doctor3 from "/public/doctor3.jpg";
-import doctor4 from "/public/doctor4.jpg";
 
 const LoginModal = ({ feature, onClose, onConfirm }: { feature: string, onClose: () => void, onConfirm: () => void }) => (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         <div className="bg-white rounded-lg p-8 shadow-2xl max-w-sm w-full transform transition-all duration-300 scale-95 hover:scale-100">
             <h2 className="text-2xl font-bold text-gray-800 mb-4">Login Required</h2>
-            <p className="text-gray-600 mb-6">Please log in or create an account to access the &quot;{feature}&quot; feature.</p>
+            <p className="text-gray-600 mb-6">Please log in or create an account to access the "{feature}" feature.</p>
             <div className="flex justify-end gap-4">
                 <button onClick={onClose} className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition">
                     Cancel
@@ -108,7 +102,7 @@ export default function Home() {
         <div className="text-yellow-400 flex justify-center mb-4">
             {[...Array(5)].map((_, i) => <Star key={i} className="w-5 h-5 fill-current" />)}
         </div>
-        <p className="text-gray-600 italic mb-6">&quot;{quote}&quot;</p>
+        <p className="text-gray-600 italic mb-6">"{quote}"</p>
         <div className="font-semibold text-gray-800">{name}</div>
         <div className="text-sm text-gray-500">{role}</div>
       </div>
@@ -181,15 +175,9 @@ export default function Home() {
       </nav>
 
       <section className="flex flex-col items-center justify-center flex-1 py-20 md:py-28 relative text-center">
-        <Image
-          src={medicalBg}
-          alt="Medical Background"
-          fill
-          style={{ objectFit: 'cover' }}
-          className="absolute inset-0"
-          priority
-        />
-        <div className="absolute inset-0 bg-gradient-to-b from-blue-900/80 via-blue-800/70 to-gray-900/80"></div>
+        <div className="absolute inset-0 bg-[url('/medical-bg.jpg')] bg-cover bg-center bg-no-repeat">
+          <div className="absolute inset-0 bg-gradient-to-b from-blue-900/80 via-blue-800/70 to-gray-900/80"></div>
+        </div>
         <div className="relative z-10">
           <h1 className="text-4xl md:text-6xl font-extrabold text-white mb-4 leading-tight">
             Your Health, Our Priority.<br/>
@@ -294,7 +282,7 @@ export default function Home() {
               <div className="flex-none w-80 snap-center">
                 <div className="bg-white rounded-xl shadow-lg overflow-hidden transform transition-all duration-300 hover:-translate-y-2 hover:shadow-xl">
                   <div className="h-64 bg-gray-200 relative">
-                    <Image src={doctor1} alt="Dr. Sarah Johnson" fill style={{ objectFit: 'cover' }} />
+                    <img src="/doctor1.jpg" alt="Dr. Sarah Johnson" className="w-full h-full object-cover" />
                   </div>
                   <div className="p-6">
                     <h3 className="text-xl font-bold text-gray-800 mb-1">Dr. Sarah Johnson</h3>
@@ -313,7 +301,7 @@ export default function Home() {
               <div className="flex-none w-80 snap-center">
                 <div className="bg-white rounded-xl shadow-lg overflow-hidden transform transition-all duration-300 hover:-translate-y-2 hover:shadow-xl">
                   <div className="h-64 bg-gray-200 relative">
-                    <Image src={doctor2} alt="Dr. Michael Chen" fill style={{ objectFit: 'cover' }} />
+                    <img src="/doctor2.jpg" alt="Dr. Michael Chen" className="w-full h-full object-cover" />
                   </div>
                   <div className="p-6">
                     <h3 className="text-xl font-bold text-gray-800 mb-1">Dr. Michael Chen</h3>
@@ -332,7 +320,7 @@ export default function Home() {
               <div className="flex-none w-80 snap-center">
                 <div className="bg-white rounded-xl shadow-lg overflow-hidden transform transition-all duration-300 hover:-translate-y-2 hover:shadow-xl">
                   <div className="h-64 bg-gray-200 relative">
-                    <Image src={doctor3} alt="Dr. Emily Rodriguez" fill style={{ objectFit: 'cover' }} />
+                    <img src="/doctor3.jpg" alt="Dr. Emily Rodriguez" className="w-full h-full object-cover" />
                   </div>
                   <div className="p-6">
                     <h3 className="text-xl font-bold text-gray-800 mb-1">Dr. Emily Rodriguez</h3>
@@ -351,7 +339,7 @@ export default function Home() {
               <div className="flex-none w-80 snap-center">
                 <div className="bg-white rounded-xl shadow-lg overflow-hidden transform transition-all duration-300 hover:-translate-y-2 hover:shadow-xl">
                   <div className="h-64 bg-gray-200 relative">
-                    <Image src={doctor4} alt="Dr. James Wilson" fill style={{ objectFit: 'cover' }} />
+                    <img src="/doctor4.jpg" alt="Dr. James Wilson" className="w-full h-full object-cover" />
                   </div>
                   <div className="p-6">
                     <h3 className="text-xl font-bold text-gray-800 mb-1">Dr. James Wilson</h3>

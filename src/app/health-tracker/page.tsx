@@ -76,13 +76,7 @@ export default function HealthTrackerPage() {
     fetchHealthData();
   }, [router]);
 
-  type SaveDataPayload = {
-    value?: number;
-    systolic?: number;
-    diastolic?: number;
-  };
-
-  const saveData = async (type: 'bmi' | 'bp', data: SaveDataPayload) => {
+  const saveData = async (type: 'bmi' | 'bp', data: any) => {
     try {
       const token = localStorage.getItem('token');
       if (!token) {

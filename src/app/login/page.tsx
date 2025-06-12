@@ -1,10 +1,8 @@
 "use client";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 import { motion } from "framer-motion";
 import { User, Lock, ArrowRight, Eye, EyeOff } from "lucide-react";
-import loginBg from "/public/login-bg.jpg";
 
 export default function LoginPage() {
   const [username, setUsername] = useState("");
@@ -48,14 +46,28 @@ export default function LoginPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center bg-gray-100">
-      <Image
-        src={loginBg}
-        alt="Login background"
-        fill
-        style={{ objectFit: 'cover' }}
-        className="absolute inset-0 z-0"
-      />
+    <div className="min-h-screen flex">
+      <div className="hidden lg:flex lg:w-1/2 relative">
+        <div className="absolute inset-0 bg-[url('/login-bg.jpg')] bg-cover bg-center">
+          <div className="absolute inset-0 bg-gradient-to-r from-blue-900/90 to-blue-800/80"></div>
+        </div>
+        <div className="relative z-10 flex flex-col justify-center px-12 text-white">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.8 }}
+          >
+            <h1 className="text-4xl md:text-6xl font-extrabold text-white mb-4 leading-tight font-sans">
+              Welcome to<br/>
+              <span className="text-lime-300">TreatWell.</span>
+            </h1>
+            <p className="text-lg text-gray-200 mb-8">
+              Your journey to better health starts here. Access your personalized healthcare dashboard and connect with top medical professionals.
+            </p>
+          </motion.div>
+        </div>
+      </div>
+
       <div className="w-full lg:w-1/2 flex items-center justify-center px-4 sm:px-6 lg:px-8 bg-white">
         <motion.div
           initial={{ opacity: 0, x: 20 }}
@@ -167,7 +179,7 @@ export default function LoginPage() {
                   <div className="w-full border-t border-gray-300" />
                 </div>
                 <div className="relative flex justify-center text-sm">
-                  <span className="px-2 bg-white text-gray-500">Don&apos;t have an account?</span>
+                  <span className="px-2 bg-white text-gray-500">Don't have an account?</span>
                 </div>
               </div>
 

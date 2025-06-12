@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/dbConnect';
 import Doctor from '@/models/Doctor';
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   await dbConnect();
 
   try {
@@ -21,7 +21,7 @@ export async function GET() {
     }
 
     return NextResponse.json({ success: true, data: doctors });
-  } catch (error: unknown) {
-    return NextResponse.json({ success: false, message: (error as Error).message }, { status: 500 });
+  } catch (error: any) {
+    return NextResponse.json({ success: false, message: error.message }, { status: 500 });
   }
 } 

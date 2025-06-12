@@ -84,14 +84,14 @@ export async function POST(req: NextRequest) {
     try {
       await transporter.sendMail(mailOptions);
       return NextResponse.json({ success: true, message: 'Password reset email sent successfully' });
-    } catch (error: unknown) {
+    } catch (error) {
       console.error('Email sending error:', error);
       patient.resetPasswordToken = undefined;
       patient.resetPasswordExpire = undefined;
       await patient.save({ validateBeforeSave: false });
       return NextResponse.json({ success: false, message: `Email could not be sent. Please try again.` }, { status: 500 });
     }
-  } catch (error: unknown) {
+  } catch (error: any) {
     console.error('Forgot password error:', error);
     return NextResponse.json({ success: false, message: 'Internal server error' }, { status: 500 });
   }

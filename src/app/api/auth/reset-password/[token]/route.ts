@@ -39,7 +39,7 @@ export async function POST(
     await patient.save();
 
     return NextResponse.json({ success: true, message: 'Password reset successful' });
-  } catch (error: unknown) {
+  } catch (error: any) {
     console.error('Reset password error:', error);
     return NextResponse.json({ success: false, message: 'Internal server error' }, { status: 500 });
   }

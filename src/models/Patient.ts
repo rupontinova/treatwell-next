@@ -114,7 +114,6 @@ PatientSchema.methods.getSignedJwtToken = function (this: IPatient): string {
     throw new Error('JWT_SECRET or JWT_EXPIRE is not defined in environment variables');
   }
 
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   return jwt.sign({ id: this._id }, secret, {
     expiresIn: expiresIn as any,
   });

@@ -21,8 +21,8 @@ export default function AppointmentsPage() {
           throw new Error(data.message || 'Failed to fetch appointments');
         }
         setAppointments(data.data);
-      } catch (err: unknown) {
-        setError(err instanceof Error ? err.message : "An unexpected error occurred");
+      } catch (err: any) {
+        setError(err.message);
       } finally {
         setLoading(false);
       }
@@ -49,8 +49,8 @@ export default function AppointmentsPage() {
             setTimeout(() => {
                 setSuccessMessage('');
             }, 3000);
-        } catch (err: unknown) {
-            setError(err instanceof Error ? err.message : "An unexpected error occurred");
+        } catch (err: any) {
+            setError(err.message);
         }
     }
   };

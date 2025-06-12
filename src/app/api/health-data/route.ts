@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/dbConnect';
 import HealthData from '@/models/HealthData';
+import Patient from '@/models/Patient';
 import jwt from 'jsonwebtoken';
 
 interface DecodedToken {
@@ -14,7 +15,7 @@ const getPatientId = (req: NextRequest): string | null => {
     if (!token) return null;
     const decoded = jwt.verify(token, process.env.JWT_SECRET as string) as DecodedToken;
     return decoded.id;
-  } catch {
+  } catch (error) {
     return null;
   }
 };
@@ -35,7 +36,7 @@ export async function GET(req: NextRequest) {
     }
 
     return NextResponse.json({ success: true, data: healthData });
-  } catch {
+  } catch (error: any) {
     return NextResponse.json({ success: false, message: 'Internal server error' }, { status: 500 });
   }
 }
@@ -68,7 +69,7 @@ export async function POST(req: NextRequest) {
     await healthData.save();
 
     return NextResponse.json({ success: true, data: healthData });
-  } catch {
+  } catch (error: any) {
     return NextResponse.json({ success: false, message: 'Internal server error' }, { status: 500 });
   }
 } 

@@ -35,8 +35,8 @@ export default function DoctorList() {
           throw new Error(data.message || 'Failed to fetch doctors');
         }
         setDoctors(data.data);
-      } catch (err: unknown) {
-        setError(err instanceof Error ? err.message : "An unexpected error occurred");
+      } catch (err: any) {
+        setError(err.message);
       } finally {
         setLoading(false);
       }
