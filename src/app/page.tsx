@@ -3,6 +3,7 @@ import React, { useRef, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Search, Stethoscope, Calendar, HeartPulse, User, Star, ShieldCheck } from 'lucide-react';
 import { Notification } from '@/components/Notification';
+import { IDoctor } from "@/models/Doctor";
 
 const LoginModal = ({ feature, onClose, onConfirm }: { feature: string, onClose: () => void, onConfirm: () => void }) => (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
@@ -21,12 +22,24 @@ const LoginModal = ({ feature, onClose, onConfirm }: { feature: string, onClose:
     </div>
 );
 
+const specialities = [
+    'Cardiology',
+    'Neurology',
+    'Dermatology',
+    'Pediatrics',
+    'Orthopedics',
+    'General Medicine',
+];
+
 export default function Home() {
   const servicesRef = useRef<HTMLDivElement>(null);
   const [modalInfo, setModalInfo] = useState<{ feature: string; visible: boolean } | null>(null);
   const [showWelcome, setShowWelcome] = useState(false);
   const [welcomeMessage, setWelcomeMessage] = useState("");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [searchName, setSearchName] = useState("");
+  const [searchSpeciality, setSearchSpeciality] = useState("");
+  const [featuredDoctors, setFeaturedDoctors] = useState<IDoctor[]>([]);
   const router = useRouter();
 
   useEffect(() => {
@@ -49,7 +62,32 @@ export default function Home() {
         }
       }
     }
+
+    const fetchFeaturedDoctors = async () => {
+      try {
+        const res = await fetch('/api/doctors?limit=4');
+        if (res.ok) {
+          const data = await res.json();
+          setFeaturedDoctors(data.data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch featured doctors", error);
+      }
+    };
+
+    fetchFeaturedDoctors();
   }, []);
+
+  const handleSearch = () => {
+    const query = new URLSearchParams({
+        name: searchName,
+        speciality: searchSpeciality,
+    }).toString();
+
+    const path = `/doctor-list?${query}`;
+
+    requireLogin("Doctor List", path);
+  };
 
   const requireLogin = (feature: string, path?: string) => {
     if (isLoggedIn) {
@@ -195,7 +233,7 @@ export default function Home() {
             </button>
             <button
               className="px-8 py-3 bg-white text-blue-600 font-bold rounded-full shadow-lg hover:bg-gray-100 transform hover:scale-105 transition-all duration-300 border border-gray-200"
-              onClick={() => requireLogin("Find a Doctor", "/doctor-list")}
+              onClick={handleSearch}
             >
               Find a Doctor
             </button>
@@ -207,12 +245,18 @@ export default function Home() {
           <div className="bg-white rounded-xl shadow-2xl p-6 flex flex-col md:flex-row gap-4 items-center">
               <div className="relative flex-1 w-full">
                   <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400"/>
-                  <input
-                      type="text"
-                      placeholder="Search by Speciality (e.g., Cardiology)"
+                  <select
+                      value={searchSpeciality}
+                      onChange={(e) => setSearchSpeciality(e.target.value)}
                       className="w-full pl-12 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700"
-                      onKeyDown={e => { if (e.key === "Enter") requireLogin("Doctor List", "/doctor-list"); }}
-                  />
+                  >
+                      <option value="">Search by Speciality</option>
+                      {specialities.map((speciality) => (
+                          <option key={speciality} value={speciality}>
+                              {speciality}
+                          </option>
+                      ))}
+                  </select>
               </div>
               <span className="hidden md:inline-block text-gray-300 font-medium">OR</span>
               <div className="relative flex-1 w-full">
@@ -220,13 +264,15 @@ export default function Home() {
                   <input
                       type="text"
                       placeholder="Search by Doctor's Name"
+                      value={searchName}
+                      onChange={(e) => setSearchName(e.target.value)}
                       className="w-full pl-12 pr-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700"
-                      onKeyDown={e => { if (e.key === "Enter") requireLogin("Doctor List", "/doctor-list"); }}
+                      onKeyDown={e => { if (e.key === "Enter") handleSearch(); }}
                   />
               </div>
               <button
                   className="w-full md:w-auto px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg hover:bg-blue-700 transition-colors flex items-center justify-center gap-2"
-                  onClick={() => requireLogin("Doctor List", "/doctor-list")}
+                  onClick={handleSearch}
               >
                   <Search className="w-5 h-5" />
                   Search
@@ -279,17 +325,26 @@ export default function Home() {
           
           <div className="relative">
             <div className="flex overflow-x-auto gap-6 pb-8 snap-x snap-mandatory scrollbar-hide">
-              <div className="flex-none w-80 snap-center">
+              {featuredDoctors.map((doctor) => (
+                <div key={String(doctor._id)} className="flex-none w-80 snap-center">
                 <div className="bg-white rounded-xl shadow-lg overflow-hidden transform transition-all duration-300 hover:-translate-y-2 hover:shadow-xl">
                   <div className="h-64 bg-gray-200 relative">
-                    <img src="/doctor1.jpg" alt="Dr. Sarah Johnson" className="w-full h-full object-cover" />
+                      {doctor.profilePicture ? (
+                        <img src={doctor.profilePicture} alt={`Dr. ${doctor.name}`} className="w-full h-full object-cover" />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-blue-50">
+                          <User className="w-24 h-24 text-blue-200" />
+                  </div>
+                      )}
                   </div>
                   <div className="p-6">
-                    <h3 className="text-xl font-bold text-gray-800 mb-1">Dr. Sarah Johnson</h3>
-                    <p className="text-blue-600 font-medium mb-4">Cardiologist</p>
-                    <p className="text-gray-600 text-sm mb-4">Specialized in preventive cardiology and heart disease management.</p>
+                      <h3 className="text-xl font-bold text-gray-800 mb-1">{doctor.name}</h3>
+                      <p className="text-blue-600 font-medium mb-4">{doctor.speciality}</p>
+                      <p className="text-gray-600 text-sm mb-4">
+                        {doctor.about || `A dedicated ${doctor.speciality.toLowerCase()} specialist.`}
+                      </p>
                     <button 
-                      onClick={() => requireLogin("Book Appointment", "/book-appointment")}
+                        onClick={() => requireLogin("Book Appointment", `/book-appointment/${doctor._id}`)}
                       className="w-full py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
                     >
                       Book Appointment
@@ -297,63 +352,7 @@ export default function Home() {
                   </div>
                 </div>
               </div>
-
-              <div className="flex-none w-80 snap-center">
-                <div className="bg-white rounded-xl shadow-lg overflow-hidden transform transition-all duration-300 hover:-translate-y-2 hover:shadow-xl">
-                  <div className="h-64 bg-gray-200 relative">
-                    <img src="/doctor2.jpg" alt="Dr. Michael Chen" className="w-full h-full object-cover" />
-                  </div>
-                  <div className="p-6">
-                    <h3 className="text-xl font-bold text-gray-800 mb-1">Dr. Michael Chen</h3>
-                    <p className="text-blue-600 font-medium mb-4">Neurologist</p>
-                    <p className="text-gray-600 text-sm mb-4">Expert in neurological disorders and brain health management.</p>
-                    <button 
-                      onClick={() => requireLogin("Book Appointment", "/book-appointment")}
-                      className="w-full py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                    >
-                      Book Appointment
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex-none w-80 snap-center">
-                <div className="bg-white rounded-xl shadow-lg overflow-hidden transform transition-all duration-300 hover:-translate-y-2 hover:shadow-xl">
-                  <div className="h-64 bg-gray-200 relative">
-                    <img src="/doctor3.jpg" alt="Dr. Emily Rodriguez" className="w-full h-full object-cover" />
-                  </div>
-                  <div className="p-6">
-                    <h3 className="text-xl font-bold text-gray-800 mb-1">Dr. Emily Rodriguez</h3>
-                    <p className="text-blue-600 font-medium mb-4">Pediatrician</p>
-                    <p className="text-gray-600 text-sm mb-4">Dedicated to providing comprehensive care for children of all ages.</p>
-                    <button 
-                      onClick={() => requireLogin("Book Appointment", "/book-appointment")}
-                      className="w-full py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                    >
-                      Book Appointment
-                    </button>
-                  </div>
-                </div>
-              </div>
-
-              <div className="flex-none w-80 snap-center">
-                <div className="bg-white rounded-xl shadow-lg overflow-hidden transform transition-all duration-300 hover:-translate-y-2 hover:shadow-xl">
-                  <div className="h-64 bg-gray-200 relative">
-                    <img src="/doctor4.jpg" alt="Dr. James Wilson" className="w-full h-full object-cover" />
-                  </div>
-                  <div className="p-6">
-                    <h3 className="text-xl font-bold text-gray-800 mb-1">Dr. James Wilson</h3>
-                    <p className="text-blue-600 font-medium mb-4">Orthopedic Surgeon</p>
-                    <p className="text-gray-600 text-sm mb-4">Specialized in sports injuries and joint replacement surgery.</p>
-                    <button 
-                      onClick={() => requireLogin("Book Appointment", "/book-appointment")}
-                      className="w-full py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
-                    >
-                      Book Appointment
-                    </button>
-                  </div>
-                </div>
-              </div>
+              ))}
             </div>
           </div>
         </div>
