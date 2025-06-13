@@ -1,9 +1,10 @@
 'use client';
 
-import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { IDoctor } from '@/models/Doctor';
+import { Stethoscope, User, Search, ArrowUp, ArrowDown } from 'lucide-react';
 
 const specialities = [
   'Cardiology',
@@ -14,11 +15,12 @@ const specialities = [
   'General Medicine',
 ];
 
-export default function DoctorList() {
+function DoctorListComponent() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const [doctors, setDoctors] = useState<IDoctor[]>([]);
-  const [searchName, setSearchName] = useState('');
-  const [searchSpeciality, setSearchSpeciality] = useState('');
+  const [searchName, setSearchName] = useState(searchParams.get('name') || '');
+  const [searchSpeciality, setSearchSpeciality] = useState(searchParams.get('speciality') || '');
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [sortConfig, setSortConfig] = useState<{
@@ -72,58 +74,60 @@ export default function DoctorList() {
         ? a.speciality.localeCompare(b.speciality)
         : b.speciality.localeCompare(a.speciality);
     }
-    // For 'sl', we will sort by index later
     return 0;
   });
   
-  // Handle 'sl' sort direction
   if (sortConfig.key === 'sl' && sortConfig.direction === 'desc') {
       sortedDoctors.reverse();
   }
 
-
   return (
-    <div className="min-h-screen bg-gray-50">
-      <nav className="flex items-center justify-between px-8 py-4 bg-white shadow-md sticky top-0 z-10">
+    <div className="min-h-screen bg-gray-50 font-sans">
+      <nav className="flex items-center justify-between px-6 md:px-10 py-4 bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-40">
         <div
-          className="text-2xl font-bold text-blue-600 cursor-pointer select-none"
+          className="text-3xl font-bold text-blue-600 cursor-pointer select-none"
           onClick={() => router.push('/')}
         >
           TreatWell
         </div>
         <Link
           href="/"
-          className="text-gray-700 hover:text-blue-600 font-medium"
+          className="text-gray-600 hover:text-blue-600 font-medium transition-colors"
         >
           Back to Home
         </Link>
       </nav>
 
-      <div className="max-w-6xl mx-auto px-4 py-8">
-        <h1 className="text-4xl font-bold text-gray-800 mb-8 text-center">Find Your Doctor</h1>
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="text-center mb-12">
+          <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-4">Find Your Perfect Doctor</h1>
+          <p className="text-lg text-gray-500 max-w-3xl mx-auto">Search our extensive network of specialists to find the right one for you.</p>
+        </div>
 
-        <div className="bg-white rounded-lg shadow p-6 mb-8">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <div>
+        <div className="bg-white rounded-xl shadow-lg p-6 lg:p-8 mb-10 sticky top-[88px] z-30">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 items-end">
+            <div className="relative">
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 Search by Name
               </label>
+              <Search className="absolute left-3 top-10 w-5 h-5 text-gray-400"/>
               <input
                 type="text"
                 value={searchName}
                 onChange={(e) => setSearchName(e.target.value)}
-                className="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-200 text-gray-600"
-                placeholder="Enter doctor's name"
+                className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700"
+                placeholder="e.g., Dr. John Doe"
               />
             </div>
-            <div>
+            <div className="relative">
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Search by Speciality
+                Filter by Speciality
               </label>
+              <Stethoscope className="absolute left-3 top-10 w-5 h-5 text-gray-400"/>
               <select
                 value={searchSpeciality}
                 onChange={(e) => setSearchSpeciality(e.target.value)}
-                className="w-full px-4 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-200 text-gray-600"
+                className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700 appearance-none"
               >
                 <option value="">All Specialities</option>
                 {specialities.map((speciality) => (
@@ -133,78 +137,93 @@ export default function DoctorList() {
                 ))}
               </select>
             </div>
+            <div>
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                Sort By
+              </label>
+              <div className="flex gap-2">
+                <select
+                  value={sortConfig.key}
+                  onChange={(e) => handleSort(e.target.value)}
+                  className="w-full px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700 bg-white"
+                >
+                  <option value="sl">Default</option>
+                  <option value="name">Name</option>
+                  <option value="speciality">Speciality</option>
+                </select>
+                <button
+                  onClick={() => handleSort(sortConfig.key)}
+                  className="p-2 border rounded-lg hover:bg-gray-100 transition-colors flex-shrink-0"
+                  aria-label="Toggle sort direction"
+                >
+                  {sortConfig.direction === 'asc' ? <ArrowUp className="w-5 h-5 text-gray-600" /> : <ArrowDown className="w-5 h-5 text-gray-600" />}
+                </button>
+              </div>
+            </div>
           </div>
         </div>
 
-        {loading && <p className="text-center">Loading...</p>}
-        {error && <p className="text-center text-red-500">{error}</p>}
+        {loading && <p className="text-center py-10 text-lg font-medium text-gray-600">Loading doctors...</p>}
+        {error && <p className="text-center py-10 text-lg font-medium text-red-500">Error: {error}</p>}
         
         {!loading && !error && (
-          <div className="bg-white rounded-lg shadow overflow-hidden">
-            <div className="overflow-x-auto">
-              <table className="min-w-full">
-                <thead>
-                  <tr className="bg-gray-50 border-b border-gray-200">
-                    <th
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:text-blue-600"
-                      onClick={() => handleSort('sl')}
-                    >
-                      SL No {sortConfig.key === 'sl' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
-                    </th>
-                    <th
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:text-blue-600"
-                      onClick={() => handleSort('name')}
-                    >
-                      Doctor Name {sortConfig.key === 'name' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
-                    </th>
-                    <th
-                      className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider cursor-pointer hover:text-blue-600"
-                      onClick={() => handleSort('speciality')}
-                    >
-                      Speciality {sortConfig.key === 'speciality' && (sortConfig.direction === 'asc' ? '↑' : '↓')}
-                    </th>
-                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                      Action
-                    </th>
-                  </tr>
-                </thead>
-                <tbody className="bg-white divide-y divide-gray-200">
-                  {sortedDoctors.map((doctor, index) => (
-                    <tr key={String(doctor._id)} className="hover:bg-gray-50 transition-colors">
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                        {index + 1}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                        {doctor.name}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                        {doctor.speciality}
-                      </td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm">
-                        {doctor.isRegistered ? (
+          <>
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+              {sortedDoctors.map((doctor) => (
+                <div key={String(doctor._id)} className="bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-1.5 overflow-hidden flex flex-col border border-gray-100">
+                  <div className="p-6 flex-grow">
+                    <div className="flex items-center gap-4 mb-4">
+                      <div className="w-16 h-16 rounded-full bg-blue-100 flex items-center justify-center overflow-hidden">
+                        {doctor.profilePicture ? (
+                          <img src={doctor.profilePicture} alt={`Dr. ${doctor.name}`} className="w-full h-full object-cover" />
+                        ) : (
+                          <User className="w-8 h-8 text-blue-500" />
+                        )}
+                      </div>
+                      <div>
+                        <h2 className="text-xl font-bold text-gray-800">{doctor.name}</h2>
+                        <div className="flex items-center text-gray-500 mt-1">
+                          <Stethoscope className="w-4 h-4 mr-2" />
+                          <p className="text-sm font-medium">{doctor.speciality}</p>
+                        </div>
+                      </div>
+                    </div>
+                    {/* Placeholder for more info */}
+                    <p className="text-gray-600 text-sm">
+                      Dr. {doctor.name.split(' ').slice(1).join(' ')} is a dedicated {doctor.speciality.toLowerCase()} specialist. 
+                      {doctor.isRegistered ? " Now accepting new patients." : " Currently unavailable for booking."}
+                    </p>
+                  </div>
+                  <div className="p-5 bg-gray-50/70">
                           <button
                             onClick={() => router.push(`/book-appointment/${doctor._id}`)}
-                            className="px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700 transition"
+                      disabled={!doctor.isRegistered}
+                      className="w-full px-4 py-2.5 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 transition-all duration-300 disabled:bg-gray-300 disabled:text-gray-500 disabled:cursor-not-allowed disabled:shadow-none"
                           >
-                            Book Appointment
+                      {doctor.isRegistered ? 'Book Appointment' : 'Unavailable'}
                           </button>
-                        ) : (
-                          <button
-                            disabled
-                            className="px-4 py-2 bg-gray-300 text-gray-500 rounded cursor-not-allowed"
-                          >
-                            Book Appointment
-                          </button>
-                        )}
-                      </td>
-                    </tr>
+                  </div>
+                </div>
                   ))}
-                </tbody>
-              </table>
             </div>
+            {sortedDoctors.length === 0 && (
+              <div className="text-center py-16 col-span-full">
+                <Search className="w-16 h-16 mx-auto text-gray-400 mb-4" />
+                <h3 className="text-xl font-semibold text-gray-800">No Doctors Found</h3>
+                <p className="text-gray-500 mt-2">Try adjusting your search or filter criteria.</p>
           </div>
+            )}
+          </>
         )}
-      </div>
+      </main>
     </div>
+  );
+}
+
+export default function DoctorList() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <DoctorListComponent />
+    </Suspense>
   );
 } 
