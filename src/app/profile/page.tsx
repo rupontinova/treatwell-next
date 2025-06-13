@@ -2,18 +2,39 @@
 import React, { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { IPatient } from "@/models/Patient";
+import Link from "next/link";
+import { User, Mail, Phone, MapPin, Calendar, Users, VenetianMask, Key, LogOut, Camera, Trash2, Check, Shield, Edit, Save, X } from 'lucide-react';
+
+interface IUser {
+    _id: string;
+    fullName: string;
+    username: string;
+    email: string;
+    phone: string;
+    address: string;
+    gender: 'Male' | 'Female' | 'Other';
+    dob: string | Date;
+    nationalId: string;
+    profilePicture?: string;
+}
 
 export default function ProfilePage() {
   const router = useRouter();
   const [profileImage, setProfileImage] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [userData, setUserData] = useState<IPatient | null>(null);
+  const [userData, setUserData] = useState<IUser | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isEditing, setIsEditing] = useState(false);
+  const [formData, setFormData] = useState({
+    fullName: '',
+    username: '',
+    phone: '',
+    address: ''
+  });
   const [error, setError] = useState<string | null>(null);
+  const [success, setSuccess] = useState<string | null>(null);
 
-  // Function to calculate age from date of birth
-  const calculateAge = (dob: string): number => {
+  const calculateAge = (dob: string | Date): number => {
     const birthDate = new Date(dob);
     const today = new Date();
     let age = today.getFullYear() - birthDate.getFullYear();
@@ -36,17 +57,24 @@ export default function ProfilePage() {
         }
 
         const res = await fetch('/api/auth/profile', {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
+          headers: { 'Authorization': `Bearer ${token}` }
         });
 
-        const data = await res.json();
         if (!res.ok) {
+          const data = await res.json();
           throw new Error(data.message || 'Failed to fetch profile');
         }
 
+        const data = await res.json();
         setUserData(data.data);
+        setFormData({
+            fullName: data.data.fullName,
+            username: data.data.username,
+            phone: data.data.phone,
+            address: data.data.address
+        });
+        setProfileImage(data.data.profilePicture);
+
       } catch (err) {
         setError(err instanceof Error ? err.message : 'Failed to load profile data');
         if (err instanceof Error && (err.message === 'Invalid token' || err.message === 'No token provided')) {
@@ -62,211 +90,187 @@ export default function ProfilePage() {
     fetchUserData();
   }, [router]);
 
-  const handleImageUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFormChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+  
+  const handleUpdateProfile = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setError(null);
+    setSuccess(null);
+    setLoading(true);
+    
+    try {
+        const token = localStorage.getItem('token');
+        const res = await fetch('/api/auth/profile', {
+            method: 'PUT',
+            headers: {
+                'Content-Type': 'application/json',
+                'Authorization': `Bearer ${token}`
+            },
+            body: JSON.stringify(formData)
+        });
+
+        const result = await res.json();
+        if (!res.ok) throw new Error(result.message);
+
+        setUserData(result.data);
+        localStorage.setItem('user', JSON.stringify(result.data));
+        setSuccess("Profile updated successfully!");
+        setIsEditing(false);
+    } catch (err) {
+        setError(err instanceof Error ? err.message : "Update failed.");
+    } finally {
+        setLoading(false);
+    }
+  }
+
+  const handleImageUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
-    if (file) {
-      const reader = new FileReader();
-      reader.onloadend = () => {
-        setProfileImage(reader.result as string);
-      };
-      reader.readAsDataURL(file);
+    if (!file) return;
+
+    const body = new FormData();
+    body.append("file", file);
+
+    try {
+        const token = localStorage.getItem('token');
+        const res = await fetch('/api/auth/profile/upload', {
+            method: 'POST',
+            headers: { 'Authorization': `Bearer ${token}` },
+            body,
+        });
+
+        const result = await res.json();
+        if (!res.ok) throw new Error(result.message);
+        
+        setProfileImage(result.filePath);
+        setUserData(prev => prev ? {...prev, profilePicture: result.filePath} as IUser : null);
+        setSuccess("Profile picture updated!");
+
+    } catch (err) {
+        setError(err instanceof Error ? err.message : "Upload failed.");
     }
   };
 
-  const triggerFileInput = () => {
-    fileInputRef.current?.click();
-  };
+  const triggerFileInput = () => fileInputRef.current?.click();
 
   const handleRemovePhoto = () => {
-    if (window.confirm("Are you sure you want to remove your profile photo?")) {
-      setProfileImage(null);
-      if (fileInputRef.current) {
-        fileInputRef.current.value = "";
-      }
-    }
+    // Implement API call to remove photo if needed
+    setProfileImage(null);
   };
-
-  if (loading) {
-    return (
-      <div className="min-h-screen bg-gray-50 py-8 flex items-center justify-center">
-        <div className="text-center">
-          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto"></div>
-          <p className="mt-4 text-gray-600">Loading profile...</p>
-        </div>
-      </div>
-    );
+  
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    localStorage.removeItem('user');
+    sessionStorage.clear();
+    router.push('/login');
   }
-
-  if (error) {
-    return (
-      <div className="min-h-screen bg-gray-50 py-8 flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-red-600 mb-4">{error}</p>
-          <button
-            onClick={() => router.push("/")}
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
-          >
-            Back to Home
-          </button>
+  
+  const DetailItem = ({ icon, label, value }: { icon: React.ReactNode, label: string, value: string | number }) => (
+    <div className="flex items-center py-3">
+        <div className="text-gray-400 w-6 h-6 mr-4">{icon}</div>
+        <div>
+            <p className="text-sm font-medium text-gray-500">{label}</p>
+            <p className="text-md font-semibold text-gray-800">{value}</p>
         </div>
-      </div>
-    );
-  }
+    </div>
+  );
 
-  if (!userData) {
-    return (
-      <div className="min-h-screen bg-gray-50 py-8 flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-gray-600 mb-4">No profile data found</p>
-          <button
-            onClick={() => router.push("/")}
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
-          >
-            Back to Home
-          </button>
-        </div>
-      </div>
-    );
-  }
+  if (loading && !userData) return <div className="min-h-screen flex items-center justify-center bg-gray-50"><p className="text-lg font-medium text-gray-600">Loading your profile...</p></div>;
+  if (error) return <div className="min-h-screen flex items-center justify-center bg-gray-50"><p className="text-lg font-medium text-red-500">Error: {error}</p></div>;
+  if (!userData) return <div className="min-h-screen flex items-center justify-center bg-gray-50"><p className="text-lg font-medium text-gray-600">Could not load profile. Please try again.</p></div>;
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8">
-      <div className="max-w-4xl mx-auto px-4">
-        {/* Header */}
-        <div className="flex justify-between items-center mb-8">
-          <h1 className="text-3xl font-bold text-blue-600">Profile</h1>
-          <button
-            onClick={() => router.push("/")}
-            className="bg-gray-500 text-white px-4 py-2 rounded hover:bg-gray-600 transition"
-          >
-            Back to Home
-          </button>
+    <div className="min-h-screen bg-gray-50 font-sans">
+      <nav className="flex items-center justify-between px-6 md:px-10 py-4 bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-40">
+        <div className="text-3xl font-bold text-blue-600 cursor-pointer select-none" onClick={() => router.push('/')}>TreatWell</div>
+        <div className="flex items-center gap-4">
+            <Link href="/appointments" className="text-gray-600 hover:text-blue-600 font-medium transition-colors">My Appointments</Link>
+            <button onClick={handleLogout} className="px-4 py-2 bg-red-600 text-white font-semibold rounded-lg shadow-md hover:bg-red-700 transition-all duration-300 flex items-center gap-2">
+                <LogOut size={18}/> Logout
+            </button>
+        </div>
+      </nav>
+
+      <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+        <div className="text-center mb-10">
+            <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-2">My Profile</h1>
+            <p className="text-lg text-gray-500">View and manage your personal information and settings.</p>
         </div>
 
-        {/* Profile Card */}
-        <div className="bg-white rounded-xl shadow-md p-8 mb-8">
-          {/* Photo Section */}
-          <div className="flex flex-col items-center mb-8">
-            <div className="relative w-32 h-32 mb-4 group">
-              {profileImage || userData.profilePicture ? (
-                <>
-                  <Image
-                    src={profileImage || userData.profilePicture || ''}
-                    alt="Profile"
-                    width={128}
-                    height={128}
-                    className="rounded-full object-cover"
-                  />
-                  {!userData.profilePicture && (
-                    <button
-                      onClick={handleRemovePhoto}
-                      className="absolute top-0 right-0 bg-red-500 text-white rounded-full p-1 opacity-0 group-hover:opacity-100 transition-opacity"
-                      title="Remove photo"
-                    >
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clipRule="evenodd" />
-                      </svg>
-                    </button>
-                  )}
-                  {userData.profilePicture && (
-                    <div className="absolute top-0 right-0 bg-green-500 text-white rounded-full p-1">
-                      <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                      </svg>
+        {error && <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm font-medium text-center">❌ {error}</div>}
+        {success && <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg text-green-700 text-sm font-medium text-center">✅ {success}</div>}
+
+        <div className="bg-white rounded-xl shadow-2xl p-4 sm:p-6 md:p-8">
+            <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                {/* Left Column - Profile Picture & Welcome */}
+                <div className="lg:col-span-1 flex flex-col items-center text-center">
+                    <div className="relative w-32 h-32 mb-4 group">
+                        <Image src={profileImage || '/default-avatar.png'} alt="Profile" width={128} height={128} className="rounded-full object-cover border-4 border-blue-200 shadow-md"/>
+                        <button onClick={triggerFileInput} className="absolute bottom-0 right-0 bg-blue-600 text-white rounded-full p-2 hover:bg-blue-700 transition-all duration-300" title="Change photo">
+                            <Camera size={18} />
+                        </button>
+                        <input type="file" ref={fileInputRef} onChange={handleImageUpload} accept="image/*" className="hidden"/>
                     </div>
-                  )}
-                </>
-              ) : (
-                <div className="w-32 h-32 rounded-full bg-gray-200 flex items-center justify-center">
-                  <svg
-                    className="w-16 h-16 text-gray-400"
-                    fill="currentColor"
-                    viewBox="0 0 20 20"
-                  >
-                    <path
-                      fillRule="evenodd"
-                      d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z"
-                      clipRule="evenodd"
-                    />
-                  </svg>
+                    <h2 className="text-2xl font-bold text-gray-800">{userData.fullName}</h2>
+                    <p className="text-gray-500">{userData.email}</p>
+                    <div className="mt-6 w-full space-y-2">
+                        <button onClick={() => setIsEditing(!isEditing)} className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 font-semibold rounded-lg hover:bg-gray-200 transition-all">
+                            {isEditing ? <><X size={18}/> Cancel</> : <><Edit size={18}/> Edit Profile</>}
+                        </button>
+                         <Link href="/change-password" legacyBehavior>
+                           <a className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 font-semibold rounded-lg hover:bg-gray-200 transition-all">
+                                <Key size={18}/> Change Password
+                           </a>
+                        </Link>
+                    </div>
                 </div>
-              )}
+                
+                {/* Right Column - User Details */}
+                <div className="lg:col-span-2">
+                    {isEditing ? (
+                        <form onSubmit={handleUpdateProfile} className="space-y-6">
+                           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+                                    <input type="text" name="fullName" value={formData.fullName} onChange={handleFormChange} className="w-full pl-4 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Username</label>
+                                    <input type="text" name="username" value={formData.username} onChange={handleFormChange} className="w-full pl-4 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+                                    <input type="text" name="phone" value={formData.phone} onChange={handleFormChange} className="w-full pl-4 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+                                </div>
+                                <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
+                                    <input type="text" name="address" value={formData.address} onChange={handleFormChange} className="w-full pl-4 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+                                </div>
+                           </div>
+                           <div className="flex justify-end gap-4">
+                               <button type="button" onClick={() => setIsEditing(false)} className="px-5 py-2.5 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300 transition-all">Cancel</button>
+                               <button type="submit" disabled={loading} className="px-5 py-2.5 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 transition-all disabled:bg-gray-400">
+                                   {loading ? 'Saving...' : 'Save Changes'}
+                               </button>
+                           </div>
+                        </form>
+                    ) : (
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
+                            <DetailItem icon={<User />} label="Full Name" value={userData.fullName} />
+                            <DetailItem icon={<VenetianMask />} label="Username" value={userData.username} />
+                            <DetailItem icon={<Mail />} label="Email" value={userData.email} />
+                            <DetailItem icon={<Phone />} label="Phone" value={userData.phone} />
+                            <DetailItem icon={<MapPin />} label="Address" value={userData.address} />
+                            <DetailItem icon={<Users />} label="Gender" value={userData.gender} />
+                            <DetailItem icon={<Calendar />} label="Age" value={calculateAge(userData.dob)} />
+                            <DetailItem icon={<Shield />} label="National ID" value={userData.nationalId} />
+                        </div>
+                    )}
+                </div>
             </div>
-            <input
-              type="file"
-              ref={fileInputRef}
-              onChange={handleImageUpload}
-              accept="image/*"
-              className="hidden"
-            />
-            {!userData.profilePicture && (
-              <button
-                onClick={triggerFileInput}
-                className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 transition"
-              >
-                {profileImage ? "Change Photo" : "Add Photo"}
-              </button>
-            )}
-            {userData.profilePicture && (
-              <p className="text-sm text-gray-500 mt-2">
-                Profile picture from Google Account
-              </p>
-            )}
-          </div>
-
-          <div className="grid grid-cols-2 gap-6">
-            {/* Left Column */}
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-500">Full Name</label>
-                <p className="mt-1 text-lg text-gray-900">{userData.fullName}</p>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-500">Username</label>
-                <p className="mt-1 text-lg text-gray-900">{userData.username}</p>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-500">Email</label>
-                <p className="mt-1 text-lg text-gray-900">{userData.email}</p>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-500">Phone Number</label>
-                <p className="mt-1 text-lg text-gray-900">{userData.phone}</p>
-              </div>
-            </div>
-
-            {/* Right Column */}
-            <div className="space-y-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-500">Address</label>
-                <p className="mt-1 text-lg text-gray-900">{userData.address}</p>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-500">Gender</label>
-                <p className="mt-1 text-lg text-gray-900">{userData.gender}</p>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-500">Age</label>
-                <p className="mt-1 text-lg text-gray-900">{calculateAge(userData.dob.toString())}</p>
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-500">National ID</label>
-                <p className="mt-1 text-lg text-gray-900">{userData.nationalId}</p>
-              </div>
-            </div>
-          </div>
         </div>
-
-        {/* Action Buttons */}
-        <div className="grid grid-cols-2 gap-4">
-          <button
-            onClick={() => router.push("/health-tracker")}
-            className="bg-blue-600 text-white px-6 py-3 rounded-lg hover:bg-blue-700 transition flex items-center justify-center"
-          >
-            <span className="mr-2">Your Current Health</span>
-          </button>
-        </div>
-      </div>
+      </main>
     </div>
   );
 } 
