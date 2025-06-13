@@ -76,6 +76,7 @@ export default function RegisterPage() {
       
       localStorage.setItem('token', data.token);
       localStorage.setItem('user', JSON.stringify(data.patient));
+      sessionStorage.setItem('showWelcome', 'true');
       
       setSuccess("Registration successful! Redirecting...");
       
