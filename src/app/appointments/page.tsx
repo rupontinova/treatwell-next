@@ -14,8 +14,24 @@ export default function AppointmentsPage() {
 
   useEffect(() => {
     const fetchAppointments = async () => {
+      const userData = localStorage.getItem('user');
+      if (!userData) {
+        setError('You must be logged in to view appointments.');
+        setLoading(false);
+        return;
+      }
+      
+      const patient = JSON.parse(userData);
+      const patientId = patient?.id || patient?._id;
+
+      if (!patientId) {
+        setError('Could not find your patient ID.');
+        setLoading(false);
+        return;
+      }
+
       try {
-        const res = await fetch('/api/appointments');
+        const res = await fetch(`/api/appointments?patientId=${patientId}`);
         const data = await res.json();
         if (!res.ok) {
           throw new Error(data.message || 'Failed to fetch appointments');
@@ -30,10 +46,10 @@ export default function AppointmentsPage() {
     fetchAppointments();
   }, []);
 
-  const handleCancel = async (appointmentId: string) => {
+  const handleCancel = async (id: string) => {
     if (window.confirm('Are you sure you want to cancel this appointment?')) {
         try {
-            const res = await fetch(`/api/appointments/${appointmentId}`, {
+            const res = await fetch(`/api/appointments/${id}`, {
                 method: 'DELETE',
             });
 
@@ -43,7 +59,7 @@ export default function AppointmentsPage() {
                 throw new Error(data.message || 'Failed to cancel appointment');
             }
 
-            setAppointments(appointments.filter(apt => apt.appointmentId !== appointmentId));
+            setAppointments(appointments.filter(apt => apt._id.toString() !== id));
             setSuccessMessage('Your appointment has been canceled!');
             
             setTimeout(() => {
@@ -161,7 +177,7 @@ export default function AppointmentsPage() {
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                         {appointment.status.toLowerCase() === 'pending' && (
                             <button
-                            onClick={() => handleCancel(appointment.appointmentId)}
+                            onClick={() => handleCancel(appointment._id.toString())}
                             className="text-red-600 hover:text-red-900 font-medium"
                             >
                             Cancel

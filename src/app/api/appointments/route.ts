@@ -7,9 +7,13 @@ export async function GET(req: NextRequest) {
     await dbConnect();
 
     try {
-        // In a real app, you'd get the patientId from the authenticated user's session
-        // For now, we'll fetch all appointments
-        const appointments = await Appointment.find({});
+        const patientId = req.nextUrl.searchParams.get('patientId');
+
+        if (!patientId) {
+            return NextResponse.json({ success: true, data: [] });
+        }
+        
+        const appointments = await Appointment.find({ patientId });
         return NextResponse.json({ success: true, data: appointments });
     } catch (error: any) {
         return NextResponse.json({ success: false, message: error.message }, { status: 500 });
