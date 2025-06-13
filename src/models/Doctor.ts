@@ -9,6 +9,7 @@ export interface IDoctor extends Document {
   qualification: string;
   about: string;
   phone: string;
+  profilePicture?: string;
 }
 
 const DoctorSchema: Schema<IDoctor> = new mongoose.Schema({
@@ -20,6 +21,7 @@ const DoctorSchema: Schema<IDoctor> = new mongoose.Schema({
   qualification: { type: String, required: true },
   about: { type: String, required: true },
   phone: { type: String, required: true },
+  profilePicture: { type: String, default: null },
 });
 
 const DoctorModel: Model<IDoctor> = mongoose.models.Doctor || mongoose.model<IDoctor>('Doctor', DoctorSchema);
