@@ -181,13 +181,13 @@ export default function Home() {
             {isLoggedIn ? (
               <>
                 <button
-                    className="px-5 py-2.5 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-green-700 transition-all duration-300"
+                    className="px-5 py-2.5 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-800 transition-all duration-300"
                     onClick={() => router.push("/profile")}
                 >
                     Profile
                 </button>
                 <button
-                    className="px-5 py-2.5 bg-red-600 text-white font-semibold rounded-lg shadow-md hover:bg-red-700 transition-all duration-300"
+                    className="px-5 py-2.5 bg-red-400 text-white font-semibold rounded-lg shadow-md hover:bg-red-700 transition-all duration-300"
                     onClick={() => {
                       localStorage.removeItem('token');
                       localStorage.removeItem('user');
