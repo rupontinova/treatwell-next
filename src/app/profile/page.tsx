@@ -156,7 +156,7 @@ export default function ProfilePage() {
 
   const handleRemovePhoto = () => {
     // Implement API call to remove photo if needed
-    setProfileImage(null);
+      setProfileImage(null);
   };
   
   const handleLogout = () => {
@@ -173,14 +173,14 @@ export default function ProfilePage() {
             <p className="text-sm font-medium text-gray-500">{label}</p>
             <p className="text-md font-semibold text-gray-800">{value}</p>
         </div>
-    </div>
-  );
+      </div>
+    );
 
   if (loading && !userData) return <div className="min-h-screen flex items-center justify-center bg-gray-50"><p className="text-lg font-medium text-gray-600">Loading your profile...</p></div>;
   if (error) return <div className="min-h-screen flex items-center justify-center bg-gray-50"><p className="text-lg font-medium text-red-500">Error: {error}</p></div>;
   if (!userData) return <div className="min-h-screen flex items-center justify-center bg-gray-50"><p className="text-lg font-medium text-gray-600">Could not load profile. Please try again.</p></div>;
 
-  return (
+    return (
     <div className="min-h-screen bg-gray-50 font-sans">
       <nav className="flex items-center justify-between px-6 md:px-10 py-4 bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-40">
         <div className="text-3xl font-bold text-blue-600 cursor-pointer select-none" onClick={() => router.push('/')}>TreatWell</div>
@@ -188,7 +188,7 @@ export default function ProfilePage() {
             <Link href="/appointments" className="text-gray-600 hover:text-blue-600 font-medium transition-colors">My Appointments</Link>
             <button onClick={handleLogout} className="px-4 py-2 bg-red-600 text-white font-semibold rounded-lg shadow-md hover:bg-red-700 transition-all duration-300 flex items-center gap-2">
                 <LogOut size={18}/> Logout
-            </button>
+          </button>
         </div>
       </nav>
 
@@ -205,7 +205,7 @@ export default function ProfilePage() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {/* Left Column - Profile Picture & Welcome */}
                 <div className="lg:col-span-1 flex flex-col items-center text-center">
-                    <div className="relative w-32 h-32 mb-4 group">
+            <div className="relative w-32 h-32 mb-4 group">
                         <Image src={profileImage || '/default-avatar.png'} alt="Profile" width={128} height={128} className="rounded-full object-cover border-4 border-blue-200 shadow-md"/>
                         <button onClick={triggerFileInput} className="absolute bottom-0 right-0 bg-blue-600 text-white rounded-full p-2 hover:bg-blue-700 transition-all duration-300" title="Change photo">
                             <Camera size={18} />
@@ -217,43 +217,43 @@ export default function ProfilePage() {
                     <div className="mt-6 w-full space-y-2">
                         <button onClick={() => setIsEditing(!isEditing)} className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 font-semibold rounded-lg hover:bg-gray-200 transition-all">
                             {isEditing ? <><X size={18}/> Cancel</> : <><Edit size={18}/> Edit Profile</>}
-                        </button>
+                    </button>
                          <Link href="/change-password" legacyBehavior>
                            <a className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 font-semibold rounded-lg hover:bg-gray-200 transition-all">
                                 <Key size={18}/> Change Password
                            </a>
                         </Link>
                     </div>
-                </div>
-                
+          </div>
+
                 {/* Right Column - User Details */}
                 <div className="lg:col-span-2">
                     {isEditing ? (
                         <form onSubmit={handleUpdateProfile} className="space-y-6">
                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div>
+              <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
                                     <input type="text" name="fullName" value={formData.fullName} onChange={handleFormChange} className="w-full pl-4 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"/>
-                                </div>
-                                <div>
+              </div>
+              <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">Username</label>
                                     <input type="text" name="username" value={formData.username} onChange={handleFormChange} className="w-full pl-4 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"/>
-                                </div>
-                                <div>
+              </div>
+              <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
                                     <input type="text" name="phone" value={formData.phone} onChange={handleFormChange} className="w-full pl-4 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"/>
-                                </div>
-                                <div>
+              </div>
+              <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
                                     <input type="text" name="address" value={formData.address} onChange={handleFormChange} className="w-full pl-4 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"/>
-                                </div>
-                           </div>
+              </div>
+            </div>
                            <div className="flex justify-end gap-4">
                                <button type="button" onClick={() => setIsEditing(false)} className="px-5 py-2.5 bg-gray-200 text-gray-700 font-semibold rounded-lg hover:bg-gray-300 transition-all">Cancel</button>
                                <button type="submit" disabled={loading} className="px-5 py-2.5 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 transition-all disabled:bg-gray-400">
                                    {loading ? 'Saving...' : 'Save Changes'}
                                </button>
-                           </div>
+              </div>
                         </form>
                     ) : (
                         <div className="grid grid-cols-1 md:grid-cols-2 gap-x-8 gap-y-4">
@@ -265,10 +265,10 @@ export default function ProfilePage() {
                             <DetailItem icon={<Users />} label="Gender" value={userData.gender} />
                             <DetailItem icon={<Calendar />} label="Age" value={calculateAge(userData.dob)} />
                             <DetailItem icon={<Shield />} label="National ID" value={userData.nationalId} />
-                        </div>
+              </div>
                     )}
-                </div>
             </div>
+          </div>
         </div>
       </main>
     </div>
