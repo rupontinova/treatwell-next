@@ -186,6 +186,7 @@ export default function ProfilePage() {
         <div className="text-3xl font-bold text-blue-600 cursor-pointer select-none" onClick={() => router.push('/')}>TreatWell</div>
         <div className="flex items-center gap-4">
             <Link href="/appointments" className="text-gray-600 hover:text-blue-600 font-medium transition-colors">My Appointments</Link>
+            <Link href="/health-tracker" className="text-gray-600 hover:text-blue-600 font-medium transition-colors">Health Tracker</Link>
             <button onClick={handleLogout} className="px-4 py-2 bg-red-600 text-white font-semibold rounded-lg shadow-md hover:bg-red-700 transition-all duration-300 flex items-center gap-2">
                 <LogOut size={18}/> Logout
           </button>
