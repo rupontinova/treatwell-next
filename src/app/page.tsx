@@ -199,12 +199,20 @@ export default function Home() {
                 </button>
               </>
             ) : (
-              <button
-                  className="px-5 py-2.5 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 transition-all duration-300"
-                  onClick={() => router.push("/login")}
-              >
-                  Login
-              </button>
+              <>
+                <button
+                  className="hidden md:inline-block text-gray-600 hover:text-blue-600 font-medium transition-colors px-4 py-2 border border-gray-200 rounded-full hover:bg-gray-50"
+                  onClick={() => router.push("/doctor")}
+                >
+                  Are you a doctor?
+                </button>
+                <button
+                    className="px-5 py-2.5 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 transition-all duration-300"
+                    onClick={() => router.push("/login")}
+                >
+                    Login
+                </button>
+              </>
             )}
             <button className="md:hidden p-2 rounded-md hover:bg-gray-100">
                 <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16m-7 6h7" /></svg>
