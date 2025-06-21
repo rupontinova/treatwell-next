@@ -128,6 +128,10 @@ export default function BookAppointment({ params }: { params: { id:string } }) {
       appointmentDate: selectedDate,
       appointmentDay: selectedDay,
       appointmentTime: selectedTime,
+      // Payment fields for new appointments
+      paymentStatus: 'unpaid',
+      paymentAmount: 0,
+      // paymentDate will be set when payment is made
     };
 
     try {
