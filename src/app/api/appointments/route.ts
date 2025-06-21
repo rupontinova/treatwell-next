@@ -8,12 +8,17 @@ export async function GET(req: NextRequest) {
 
     try {
         const patientId = req.nextUrl.searchParams.get('patientId');
+        const doctorId = req.nextUrl.searchParams.get('doctorId');
 
-        if (!patientId) {
+        let appointments;
+        if (patientId) {
+            appointments = await Appointment.find({ patientId });
+        } else if (doctorId) {
+            appointments = await Appointment.find({ doctorId });
+        } else {
             return NextResponse.json({ success: true, data: [] });
         }
         
-        const appointments = await Appointment.find({ patientId });
         return NextResponse.json({ success: true, data: appointments });
     } catch (error: any) {
         return NextResponse.json({ success: false, message: error.message }, { status: 500 });
