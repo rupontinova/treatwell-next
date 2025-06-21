@@ -56,6 +56,12 @@ export default function PrescriptionPage() {
         const appointmentInfo = appointmentData.data;
         setAppointment(appointmentInfo);
 
+        // Check payment status - doctor can only write prescription if payment is made
+        if (appointmentInfo.paymentStatus !== 'paid') {
+          setError('Patient must complete payment before prescription can be written. Please ask the patient to pay first.');
+          return;
+        }
+
         // Fetch patient details using patientId from appointment
         if (appointmentInfo.patientId) {
           try {
