@@ -22,14 +22,7 @@ const LoginModal = ({ feature, onClose, onConfirm }: { feature: string, onClose:
     </div>
 );
 
-const specialities = [
-    'Cardiology',
-    'Neurology',
-    'Dermatology',
-    'Pediatrics',
-    'Orthopedics',
-    'General Medicine',
-];
+// Removed hard-coded specialities - now loaded dynamically
 
 export default function Home() {
   const servicesRef = useRef<HTMLDivElement>(null);
@@ -40,6 +33,7 @@ export default function Home() {
   const [searchName, setSearchName] = useState("");
   const [searchSpeciality, setSearchSpeciality] = useState("");
   const [featuredDoctors, setFeaturedDoctors] = useState<IDoctor[]>([]);
+  const [specialities, setSpecialities] = useState<string[]>([]);
   const router = useRouter();
 
   useEffect(() => {
@@ -75,7 +69,20 @@ export default function Home() {
       }
     };
 
+    const fetchSpecialities = async () => {
+      try {
+        const res = await fetch('/api/doctors/specialities');
+        if (res.ok) {
+          const data = await res.json();
+          setSpecialities(data.data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch specialities", error);
+      }
+    };
+
     fetchFeaturedDoctors();
+    fetchSpecialities();
   }, []);
 
   const handleSearch = () => {
