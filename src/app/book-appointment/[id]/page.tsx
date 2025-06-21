@@ -12,9 +12,35 @@ const availableTimeSlots = [
   '02:00 PM', '03:00 PM', '04:00 PM', '05:00 PM'
 ];
 
-const availableDays = [
-  'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday'
-];
+// Generate next 7 days (excluding weekends for medical appointments)
+const getNextWeekDays = () => {
+  const days = [];
+  const today = new Date();
+  
+  for (let i = 1; i <= 7; i++) {
+    const futureDate = new Date(today);
+    futureDate.setDate(today.getDate() + i);
+    
+    // Skip weekends (Saturday = 6, Sunday = 0)
+    if (futureDate.getDay() !== 0 && futureDate.getDay() !== 6) {
+      const dayName = futureDate.toLocaleDateString('en-US', { weekday: 'long' });
+      const dateString = futureDate.toLocaleDateString('en-US', { 
+        month: 'short', 
+        day: 'numeric',
+        year: 'numeric'
+      });
+      const fullDate = futureDate.toLocaleDateString();
+      
+      days.push({
+        dayName,
+        dateString,
+        fullDate,
+        date: futureDate
+      });
+    }
+  }
+  return days;
+};
 
 export default function BookAppointment({ params }: { params: { id:string } }) {
   const router = useRouter();
@@ -22,10 +48,12 @@ export default function BookAppointment({ params }: { params: { id:string } }) {
   const [patient, setPatient] = useState<IPatient | null>(null);
   const [selectedTime, setSelectedTime] = useState('');
   const [selectedDay, setSelectedDay] = useState('');
+  const [selectedDate, setSelectedDate] = useState('');
   const [error, setError] = useState('');
   const [success, setSuccess] = useState('');
   const [loading, setLoading] = useState(false);
   const [fetchingDoctor, setFetchingDoctor] = useState(true);
+  const [availableDays, setAvailableDays] = useState<Array<{dayName: string, dateString: string, fullDate: string, date: Date}>>([]);
 
   useEffect(() => {
     const fetchDoctorDetails = async () => {
@@ -57,12 +85,17 @@ export default function BookAppointment({ params }: { params: { id:string } }) {
     }
   }, [router]);
 
+  useEffect(() => {
+    // Initialize available days for the next week
+    setAvailableDays(getNextWeekDays());
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setSuccess('');
 
-    if (!selectedTime || !selectedDay) {
+    if (!selectedTime || !selectedDay || !selectedDate) {
       setError('Please select a day and a time slot!');
       return;
     }
@@ -92,7 +125,7 @@ export default function BookAppointment({ params }: { params: { id:string } }) {
       location: doctor.location,
       designation: doctor.designation,
       qualification: doctor.qualification,
-      appointmentDate: new Date().toLocaleDateString(),
+      appointmentDate: selectedDate,
       appointmentDay: selectedDay,
       appointmentTime: selectedTime,
     };
@@ -166,6 +199,7 @@ export default function BookAppointment({ params }: { params: { id:string } }) {
         <div className="text-center mb-10">
             <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-2">Book Your Appointment</h1>
             <p className="text-lg text-gray-500">Secure your time slot with {doctor?.name}</p>
+            <p className="text-sm text-blue-600 font-medium mt-2">📅 Available for booking: Next 7 days only (weekdays)</p>
         </div>
         
         <div className="bg-white rounded-xl shadow-2xl p-6 md:p-8">
@@ -210,15 +244,19 @@ export default function BookAppointment({ params }: { params: { id:string } }) {
                                 <Calendar className="w-5 h-5 mr-3 text-gray-400" />
                                 1. Select a Day
                             </label>
-                            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                                 {availableDays.map((day) => (
                                     <button
                                         type="button"
-                                        key={day}
-                                        onClick={() => setSelectedDay(day)}
-                                        className={`px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 border-2 ${selectedDay === day ? 'bg-blue-600 text-white border-blue-600 shadow-lg' : 'bg-white hover:bg-blue-50 hover:border-blue-300 border-gray-200'}`}
+                                        key={day.fullDate}
+                                        onClick={() => {
+                                            setSelectedDay(day.dayName);
+                                            setSelectedDate(day.fullDate);
+                                        }}
+                                        className={`px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 border-2 text-left ${selectedDay === day.dayName ? 'bg-blue-600 text-white border-blue-600 shadow-lg' : 'bg-white hover:bg-blue-50 hover:border-blue-300 border-gray-200'}`}
                                     >
-                                        {day}
+                                        <div className="font-semibold">{day.dayName}</div>
+                                        <div className="text-xs opacity-75">{day.dateString}</div>
                                     </button>
                                 ))}
                             </div>
@@ -250,7 +288,7 @@ export default function BookAppointment({ params }: { params: { id:string } }) {
                             <button
                                 type="submit"
                                 className="w-full md:w-auto px-10 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 transition-all duration-300 disabled:bg-gray-400 disabled:cursor-not-allowed"
-                                disabled={loading || !selectedDay || !selectedTime}
+                                disabled={loading || !selectedDay || !selectedTime || !selectedDate}
                             >
                                 {loading ? 'Booking...' : 'Confirm Appointment'}
                             </button>
