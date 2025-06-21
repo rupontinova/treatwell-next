@@ -47,16 +47,28 @@ export async function PATCH(
   await dbConnect();
 
   try {
-    const body = await req.json();
-    const { status } = body;
+    const { status, paymentStatus, paymentAmount } = await req.json();
 
-    if (!status || !['pending', 'Done', 'Declined'].includes(status)) {
-      return NextResponse.json({ success: false, message: 'Invalid status' }, { status: 400 });
+    const updateData: any = {};
+
+    if (status) {
+      updateData.status = status;
+    }
+
+    if (paymentStatus) {
+      updateData.paymentStatus = paymentStatus;
+      if (paymentStatus === 'paid') {
+        updateData.paymentDate = new Date();
+      }
+    }
+
+    if (paymentAmount) {
+      updateData.paymentAmount = paymentAmount;
     }
 
     const updatedAppointment = await Appointment.findByIdAndUpdate(
       params.id,
-      { status },
+      updateData,
       { new: true }
     );
 
