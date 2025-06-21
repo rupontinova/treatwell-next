@@ -16,6 +16,9 @@ export interface IAppointment extends Document {
   appointmentDate: string;
   appointmentDay: string;
   status: 'pending' | 'Done' | 'Declined';
+  paymentStatus: 'paid' | 'unpaid';
+  paymentAmount: number;
+  paymentDate?: Date;
 }
 
 const AppointmentSchema: Schema<IAppointment> = new mongoose.Schema({
@@ -33,6 +36,9 @@ const AppointmentSchema: Schema<IAppointment> = new mongoose.Schema({
     appointmentDate: { type: String, required: true },
     appointmentDay: { type: String, required: true },
     status: { type: String, enum: ['pending', 'Done', 'Declined'], default: 'pending' },
+    paymentStatus: { type: String, enum: ['paid', 'unpaid'], default: 'unpaid' },
+    paymentAmount: { type: Number, default: 0 }, // Default consultation fee
+    paymentDate: { type: Date },
 });
 
 const AppointmentModel: Model<IAppointment> = mongoose.models.Appointment || mongoose.model<IAppointment>('Appointment', AppointmentSchema);
