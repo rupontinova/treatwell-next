@@ -6,14 +6,7 @@ import Link from 'next/link';
 import { IDoctor } from '@/models/Doctor';
 import { Stethoscope, User, Search, ArrowUp, ArrowDown } from 'lucide-react';
 
-const specialities = [
-  'Cardiology',
-  'Neurology',
-  'Dermatology',
-  'Pediatrics',
-  'Orthopedics',
-  'General Medicine',
-];
+// Removed hard-coded specialities - now loaded dynamically
 
 function DoctorListComponent() {
   const router = useRouter();
@@ -21,6 +14,7 @@ function DoctorListComponent() {
   const [doctors, setDoctors] = useState<IDoctor[]>([]);
   const [searchName, setSearchName] = useState(searchParams.get('name') || '');
   const [searchSpeciality, setSearchSpeciality] = useState(searchParams.get('speciality') || '');
+  const [specialities, setSpecialities] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [sortConfig, setSortConfig] = useState<{
@@ -43,7 +37,21 @@ function DoctorListComponent() {
         setLoading(false);
       }
     };
+
+    const fetchSpecialities = async () => {
+      try {
+        const res = await fetch('/api/doctors/specialities');
+        if (res.ok) {
+          const data = await res.json();
+          setSpecialities(data.data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch specialities", error);
+      }
+    };
+
     fetchDoctors();
+    fetchSpecialities();
   }, []);
 
   const handleSort = (key: string) => {
@@ -59,7 +67,7 @@ function DoctorListComponent() {
       .toLowerCase()
       .includes(searchName.toLowerCase());
     const specialityMatch =
-      !searchSpeciality || doctor.speciality === searchSpeciality;
+      !searchSpeciality || doctor.speciality.toLowerCase() === searchSpeciality.toLowerCase();
     return nameMatch && specialityMatch;
   });
 
