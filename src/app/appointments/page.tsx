@@ -85,7 +85,7 @@ export default function AppointmentsPage() {
       },
       done: {
         icon: <CheckCircle className="w-4 h-4 mr-2" />,
-        text: 'Done',
+        text: 'Confirmed',
         className: 'bg-green-100 text-green-800 border-green-200',
       },
       declined: {
@@ -119,6 +119,59 @@ export default function AppointmentsPage() {
     </div>
   );
 
+  // Helper function to format date and day display
+  const formatDateDisplay = (appointmentDate: string, appointmentDay: string) => {
+    try {
+      // Check if appointmentDate is valid
+      if (!appointmentDate || appointmentDate === 'undefined' || appointmentDate === 'null') {
+        return {
+          primaryDate: 'No Date',
+          dayName: appointmentDay || 'Unknown Day'
+        };
+      }
+
+      // Parse DD/MM/YYYY format (which is what we have in database)
+      let date: Date;
+      const parts = appointmentDate.split('/');
+      
+      if (parts.length === 3) {
+        const day = parseInt(parts[0]);
+        const month = parseInt(parts[1]);
+        const year = parseInt(parts[2]);
+        
+        // Create date with DD/MM/YYYY format
+        date = new Date(year, month - 1, day); // month is 0-indexed in JS
+      } else {
+        // Fallback: try direct parsing
+        date = new Date(appointmentDate);
+      }
+      
+      // Check if date is valid
+      if (isNaN(date.getTime())) {
+        return {
+          primaryDate: appointmentDate, // Just show the raw date
+          dayName: appointmentDay || 'Unknown Day'
+        };
+      }
+
+      const formattedDate = date.toLocaleDateString('en-US', { 
+        month: 'short', 
+        day: 'numeric',
+        year: 'numeric'
+      });
+      
+      return {
+        primaryDate: formattedDate,
+        dayName: appointmentDay
+      };
+    } catch (error) {
+      return {
+        primaryDate: appointmentDate || 'Unknown Date',
+        dayName: appointmentDay || 'Unknown Day'
+      };
+    }
+  };
+
   return (
     <div className="min-h-screen bg-gray-50 font-sans">
       <nav className="flex items-center justify-between px-6 md:px-10 py-4 bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-40">
@@ -151,7 +204,7 @@ export default function AppointmentsPage() {
         {loading && <p className="text-center py-10 text-lg font-medium text-gray-600">Loading your appointments...</p>}
         {error && <p className="text-center py-10 text-lg font-medium text-red-500">Error: {error}</p>}
 
-        {!loading && !error && (
+                {!loading && !error && (
             <>
             {appointments.length > 0 ? (
                 <div className="space-y-6">
@@ -165,8 +218,11 @@ export default function AppointmentsPage() {
                                 </div>
                                 <div className="flex items-center gap-4 w-full md:w-auto">
                                     <div className="flex-1 text-center">
-                                        <p className="text-sm text-gray-500">Date</p>
-                                        <p className="font-bold text-gray-800">{appointment.appointmentDate}</p>
+                                        <p className="text-sm text-gray-500">Date & Day</p>
+                                        <div className="font-bold text-gray-800">
+                                            <p className="text-sm leading-tight">{formatDateDisplay(appointment.appointmentDate, appointment.appointmentDay).dayName}</p>
+                                            <p className="text-xs text-gray-600">{formatDateDisplay(appointment.appointmentDate, appointment.appointmentDay).primaryDate}</p>
+                                        </div>
                                     </div>
                                     <div className="flex-1 text-center">
                                         <p className="text-sm text-gray-500">Time</p>
@@ -198,7 +254,7 @@ export default function AppointmentsPage() {
                                     <div className="space-y-2">
                                         <h3 className="text-lg font-semibold text-gray-800 mb-2 border-b pb-2">Appointment Details</h3>
                                         <DetailRow icon={<Hash size={18}/>} label="Appointment ID" value={appointment.appointmentId} />
-                                        <DetailRow icon={<Calendar size={18}/>} label="Day" value={appointment.appointmentDay} />
+                                        <DetailRow icon={<Calendar size={18}/>} label="Schedule" value={`${formatDateDisplay(appointment.appointmentDate, appointment.appointmentDay).dayName}, ${formatDateDisplay(appointment.appointmentDate, appointment.appointmentDay).primaryDate}`} />
                                     </div>
                                     {/* Column 3: Patient Info & Actions */}
                                     <div className="space-y-2">
@@ -214,6 +270,34 @@ export default function AppointmentsPage() {
                             >
                                                 Cancel Appointment
                             </button>
+                                            </div>
+                                        )}
+
+                                        {appointment.status.toLowerCase() === 'done' && (
+                                            <div className="pt-4 space-y-3">
+                                                <div className="text-center">
+                                                    <div className="inline-flex items-center px-3 py-1 bg-green-100 text-green-800 text-xs font-medium rounded-full border border-green-200 mb-3">
+                                                        ✓ Appointment Confirmed
+                                                    </div>
+                                                </div>
+                                                <button
+                                                    onClick={() => router.push(`/prescription/${appointment._id}`)}
+                                                    className="w-full px-4 py-3 bg-blue-600 text-white text-sm font-semibold rounded-lg shadow-md hover:bg-blue-700 transition-all duration-300 flex items-center justify-center gap-2"
+                                                >
+                                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                                                    </svg>
+                                                    View Prescription
+                                                </button>
+                                                <button
+                                                    onClick={() => router.push(`/payment/${appointment._id}`)}
+                                                    className="w-full px-4 py-3 bg-green-600 text-white text-sm font-semibold rounded-lg shadow-md hover:bg-green-700 transition-all duration-300 flex items-center justify-center gap-2"
+                                                >
+                                                    <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                                                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path>
+                                                    </svg>
+                                                    Make Payment
+                                                </button>
                                             </div>
                                         )}
                                     </div>
