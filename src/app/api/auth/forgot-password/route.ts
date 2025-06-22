@@ -34,17 +34,16 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ success: false, message: 'No account found with that email address' }, { status: 404 });
     }
 
-    const resetToken = patient.getResetPasswordToken();
+    // Generate 4-digit OTP instead of reset token
+    const otpCode = patient.generateOTP();
     await patient.save({ validateBeforeSave: false });
-
-    const resetUrl = `${process.env.NEXT_PUBLIC_CLIENT_URL || 'http://localhost:3000'}/reset-password/${resetToken}`;
 
     const transporter = createTransporter();
 
     const mailOptions = {
       from: `"TreatWell Support" <${process.env.EMAIL_USER}>`,
       to: patient.email,
-      subject: 'Password Reset Request - TreatWell',
+      subject: 'Password Reset OTP - TreatWell',
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 20px; background-color: #f8f9fa;">
           <div style="background-color: white; padding: 30px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1);">
@@ -52,21 +51,20 @@ export async function POST(req: NextRequest) {
               <h1 style="color: #2563eb; margin: 0; font-size: 28px;">TreatWell</h1>
               <p style="color: #6b7280; margin: 5px 0 0 0;">Healthcare Platform</p>
             </div>
-            <h2 style="color: #374151; margin-bottom: 20px;">Password Reset Request</h2>
+            <h2 style="color: #374151; margin-bottom: 20px;">Password Reset OTP</h2>
             <p style="color: #4b5563; line-height: 1.6; margin-bottom: 20px;">
               Hello <strong>${patient.fullName}</strong>,
             </p>
             <p style="color: #4b5563; line-height: 1.6; margin-bottom: 20px;">
-              We received a request to reset your password for your TreatWell account. If you made this request, please click the button below to reset your password:
+              We received a request to reset your password for your TreatWell account. Please use the OTP code below to reset your password:
             </p>
             <div style="text-align: center; margin: 30px 0;">
-              <a href="${resetUrl}" 
-                 style="background-color: #2563eb; color: white; padding: 12px 30px; text-decoration: none; border-radius: 6px; font-weight: bold; display: inline-block;">
-                Reset Password
-              </a>
+              <div style="background-color: #f3f4f6; border: 2px dashed #2563eb; padding: 20px; border-radius: 10px; font-size: 32px; font-weight: bold; color: #2563eb; letter-spacing: 8px;">
+                ${otpCode}
+              </div>
             </div>
             <p style="color: #6b7280; font-size: 14px; line-height: 1.6; margin-bottom: 10px;">
-              <strong>Important:</strong> This link will expire in 15 minutes for security reasons.
+              <strong>Important:</strong> This OTP will expire in 15 minutes for security reasons.
             </p>
             <p style="color: #6b7280; font-size: 14px; line-height: 1.6; margin-bottom: 20px;">
               If you didn't request this password reset, please ignore this email. Your password will remain unchanged.
@@ -83,11 +81,11 @@ export async function POST(req: NextRequest) {
 
     try {
       await transporter.sendMail(mailOptions);
-      return NextResponse.json({ success: true, message: 'Password reset email sent successfully' });
+      return NextResponse.json({ success: true, message: 'OTP sent to your email successfully. Please check your inbox.' });
     } catch (error) {
       console.error('Email sending error:', error);
-      patient.resetPasswordToken = undefined;
-      patient.resetPasswordExpire = undefined;
+      patient.otpCode = undefined;
+      patient.otpExpire = undefined;
       await patient.save({ validateBeforeSave: false });
       return NextResponse.json({ success: false, message: `Email could not be sent. Please try again.` }, { status: 500 });
     }

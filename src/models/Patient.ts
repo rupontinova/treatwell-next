@@ -12,6 +12,8 @@ export interface IPatient extends Document {
   profilePicture?: string;
   resetPasswordToken?: string;
   resetPasswordExpire?: Date;
+  otpCode?: string;
+  otpExpire?: Date;
   gender: 'Male' | 'Female' | 'Other';
   dob: Date;
   nationalId: string;
@@ -21,6 +23,7 @@ export interface IPatient extends Document {
   matchPassword(enteredPassword: string): Promise<boolean>;
   getSignedJwtToken(): string;
   getResetPasswordToken(): string;
+  generateOTP(): string;
 }
 
 const PatientSchema: Schema<IPatient> = new mongoose.Schema({
@@ -64,6 +67,14 @@ const PatientSchema: Schema<IPatient> = new mongoose.Schema({
     default: null,
   },
   resetPasswordExpire: {
+    type: Date,
+    default: null,
+  },
+  otpCode: {
+    type: String,
+    default: null,
+  },
+  otpExpire: {
     type: Date,
     default: null,
   },
@@ -140,6 +151,18 @@ PatientSchema.methods.getResetPasswordToken = function (this: IPatient): string 
   this.resetPasswordExpire = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
 
   return resetToken;
+};
+
+// Generate 4-digit OTP code
+PatientSchema.methods.generateOTP = function (this: IPatient): string {
+  // Generate 4-digit OTP
+  const otp = Math.floor(1000 + Math.random() * 9000).toString();
+  
+  // Set OTP and expiry time (15 minutes)
+  this.otpCode = otp;
+  this.otpExpire = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
+
+  return otp;
 };
 
 const PatientModel: Model<IPatient> = mongoose.models.Patient || mongoose.model<IPatient>('Patient', PatientSchema);
