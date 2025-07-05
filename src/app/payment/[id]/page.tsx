@@ -275,15 +275,7 @@ export default function PaymentPage() {
         </div>
         <div className="text-3xl font-bold text-blue-600">TreatWell</div>
         <div className="flex items-center gap-3">
-          {appointment.paymentStatus === 'paid' && (
-            <button 
-              onClick={downloadInvoice}
-              className="flex items-center gap-2 px-3 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-            >
-              <Download className="w-4 h-4" />
-              Download Invoice
-            </button>
-          )}
+          {/* Download Invoice button removed */}
         </div>
       </nav>
 

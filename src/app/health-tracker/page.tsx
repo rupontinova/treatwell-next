@@ -244,11 +244,11 @@ export default function HealthTrackerPage() {
             <ArrowLeft className="w-5 h-5" />
             <span className="hidden sm:inline">Back</span>
           </button>
-          <div
-            className="text-3xl font-bold text-blue-600 cursor-pointer select-none"
-            onClick={() => router.push('/')}
-          >
-            TreatWell
+        <div
+          className="text-3xl font-bold text-blue-600 cursor-pointer select-none"
+          onClick={() => router.push('/')}
+        >
+          TreatWell
           </div>
         </div>
         <Link

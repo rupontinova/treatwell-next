@@ -175,7 +175,11 @@ export default function PrescriptionPage() {
         throw new Error(data.message || 'Failed to save prescription');
       }
 
-      setSuccessMessage('Prescription saved successfully!');
+      setSuccessMessage('Prescription saved successfully! Redirecting to appointments...');
+      
+      // Add a flag to localStorage to indicate that data should be refreshed
+      localStorage.setItem('refreshAppointments', 'true');
+      
       setTimeout(() => {
         router.push('/doctor/appointments');
       }, 2000);

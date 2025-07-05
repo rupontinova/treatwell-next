@@ -222,30 +222,39 @@ export default function AppointmentsPage() {
                     {appointments.map((appointment) => (
                     <div key={appointment.appointmentId} className="bg-white rounded-xl shadow-lg hover:shadow-2xl transition-all duration-300 flex flex-col border border-gray-100 overflow-hidden">
                         <div className="p-5 md:p-6 cursor-pointer" onClick={() => setExpandedCard(expandedCard === appointment.appointmentId ? null : appointment.appointmentId)}>
-                           <div className="flex flex-col md:flex-row justify-between items-start md:items-center">
-                                <div className="mb-4 md:mb-0">
+                           <div className="flex flex-col md:flex-row justify-between items-center">
+                                {/* Left: Doctor Info */}
+                                <div className="flex-1 mb-4 md:mb-0">
                                     <h2 className="text-xl md:text-2xl font-bold text-gray-800">{appointment.doctorName}</h2>
                                     <p className="text-md text-blue-600 font-medium flex items-center mt-1"><Stethoscope className="w-4 h-4 mr-2" />{appointment.speciality}</p>
                                 </div>
-                                <div className="flex items-center gap-4 w-full md:w-auto">
-                                    <div className="flex-1 text-center">
-                                        <p className="text-sm text-gray-500">Date & Day</p>
-                                        <div className="font-bold text-gray-800">
-                                            <p className="text-sm leading-tight">{formatDateDisplay(appointment.appointmentDate, appointment.appointmentDay).dayName}</p>
-                                            <p className="text-xs text-gray-600">{formatDateDisplay(appointment.appointmentDate, appointment.appointmentDay).primaryDate}</p>
+                                
+                                {/* Center: Date & Time - Prominent Display */}
+                                <div className="flex-1 text-center bg-blue-50 rounded-lg p-4 mx-0 md:mx-6 mb-4 md:mb-0 border border-blue-100">
+                                    <div className="grid grid-cols-2 gap-4">
+                                        <div className="text-center">
+                                            <p className="text-xs text-blue-600 font-medium uppercase tracking-wide">Date & Day</p>
+                                            <div className="font-bold text-gray-800 mt-1">
+                                                <p className="text-lg leading-tight">{formatDateDisplay(appointment.appointmentDate, appointment.appointmentDay).dayName}</p>
+                                                <p className="text-sm text-gray-600">{formatDateDisplay(appointment.appointmentDate, appointment.appointmentDay).primaryDate}</p>
+                                            </div>
+                                        </div>
+                                        <div className="text-center border-l border-blue-200 pl-4">
+                                            <p className="text-xs text-blue-600 font-medium uppercase tracking-wide">Time</p>
+                                            <p className="font-bold text-gray-800 text-lg mt-1">{appointment.appointmentTime}</p>
                                         </div>
                                     </div>
-                                    <div className="flex-1 text-center">
-                                        <p className="text-sm text-gray-500">Time</p>
-                                        <p className="font-bold text-gray-800">{appointment.appointmentTime}</p>
-                                    </div>
-                                    <div className="hidden md:block ml-4">
+                                </div>
+                                
+                                {/* Right: Status & Controls */}
+                                <div className="flex-1 flex items-center justify-end gap-4">
+                                    <div className="hidden md:block">
                                         <StatusBadge status={appointment.status} />
                                     </div>
                                     <ChevronDown className={`w-6 h-6 text-gray-500 transition-transform duration-300 ${expandedCard === appointment.appointmentId ? 'rotate-180' : ''}`} />
                                 </div>
                            </div>
-                           <div className="md:hidden mt-4">
+                           <div className="md:hidden mt-4 text-center">
                                 <StatusBadge status={appointment.status} />
                            </div>
                         </div>

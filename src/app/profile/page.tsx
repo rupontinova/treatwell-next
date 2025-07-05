@@ -3,7 +3,7 @@ import React, { useState, useRef, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import Link from "next/link";
-import { User, Mail, Phone, MapPin, Calendar, Users, VenetianMask, Key, LogOut, Camera, Trash2, Check, Shield, Edit, Save, X } from 'lucide-react';
+import { User, Mail, Phone, MapPin, Calendar, Users, VenetianMask, Key, LogOut, Camera, Trash2, Check, Shield, Edit, Save, X, ArrowLeft } from 'lucide-react';
 
 interface IUser {
     _id: string;
@@ -203,6 +203,14 @@ export default function ProfilePage() {
     sessionStorage.clear();
     router.push('/login');
   }
+
+  const handleBack = () => {
+    if (window.history.length > 1) {
+      router.back();
+    } else {
+      router.push('/');
+    }
+  }
   
   const DetailItem = ({ icon, label, value }: { icon: React.ReactNode, label: string, value: string | number }) => (
     <div className="flex items-center py-3">
@@ -232,9 +240,21 @@ export default function ProfilePage() {
       </nav>
 
       <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="text-center mb-10">
+        <div className="mb-10">
+          <div className="flex items-center justify-between mb-6">
+            <button
+              onClick={handleBack}
+              className="flex items-center gap-2 px-4 py-2 text-gray-600 hover:text-blue-600 font-medium transition-colors rounded-lg hover:bg-gray-100"
+            >
+              <ArrowLeft size={20} />
+              <span>Back</span>
+            </button>
+            <div className="flex-1"></div>
+          </div>
+          <div className="text-center">
             <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-2">My Profile</h1>
             <p className="text-lg text-gray-500">View and manage your personal information and settings.</p>
+          </div>
         </div>
 
         {error && <div className="mb-6 p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm font-medium text-center">❌ {error}</div>}

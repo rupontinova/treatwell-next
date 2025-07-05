@@ -215,6 +215,16 @@ export default function DoctorLoginPage() {
               <ArrowRight className="ml-2 h-4 w-4" />
             </motion.button>
             
+            {/* Back to Home link */}
+            <div className="text-center">
+              <button
+                className="text-gray-600 hover:text-blue-600 font-medium transition-colors px-4 py-2 border border-gray-200 rounded-full hover:bg-gray-50"
+                onClick={() => router.push("/")}
+              >
+                ← Back to Home
+              </button>
+            </div>
+            
             {/* Are you a patient link */}
             <div className="text-center">
               <button

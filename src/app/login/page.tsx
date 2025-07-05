@@ -283,6 +283,16 @@ export default function LoginPage() {
               </motion.button>
             </div>
             
+            {/* Back to Home link */}
+            <div className="text-center">
+              <button
+                className="text-gray-600 hover:text-blue-600 font-medium transition-colors px-4 py-2 border border-gray-200 rounded-full hover:bg-gray-50"
+                onClick={() => router.push("/")}
+              >
+                ← Back to Home
+              </button>
+            </div>
+            
             {/* Are you a doctor link */}
             <div className="text-center">
               <button

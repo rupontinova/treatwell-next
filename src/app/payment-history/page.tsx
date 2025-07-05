@@ -204,13 +204,13 @@ export default function PaymentHistoryPage() {
             Back to Appointments
           </button>
         </div>
-        <div className="text-3xl font-bold text-blue-600">TreatWell</div>
-        <Link
-          href="/"
-          className="text-gray-600 hover:text-blue-600 font-medium transition-colors"
+        <div></div>
+        <div
+          onClick={() => router.push('/')}
+          className="text-2xl font-bold text-blue-600 cursor-pointer select-none hover:text-blue-700 transition-colors"
         >
-          Home
-        </Link>
+          TreatWell
+        </div>
       </nav>
 
       <main className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
