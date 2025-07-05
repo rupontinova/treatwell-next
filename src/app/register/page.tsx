@@ -21,6 +21,7 @@ export default function RegisterPage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
+  const [passwordTouched, setPasswordTouched] = useState(false);
   const router = useRouter();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
@@ -37,10 +38,6 @@ export default function RegisterPage() {
     }
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(form.email)) {
       setError("Please enter a valid email address!");
-      return false;
-    }
-    if (form.password.length < 6) {
-      setError("Password must be at least 6 characters long!");
       return false;
     }
     if (!/^\+?\d{10,15}$/.test(form.phone)) {
@@ -87,6 +84,21 @@ export default function RegisterPage() {
       setError(err instanceof Error ? err.message : 'Registration failed. Please try again.');
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Password validation function
+  const validatePassword = (pass: string) => {
+    return pass.length >= 6;
+  };
+
+  // Handle password change with validation
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setForm({ ...form, password: value });
+    setError("");
+    if (!passwordTouched) {
+      setPasswordTouched(true);
     }
   };
 
@@ -163,7 +175,7 @@ export default function RegisterPage() {
                     <input
                       type="text"
                       name="username"
-                      className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                      className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition text-gray-900 font-medium"
                       value={form.username}
                       onChange={handleChange}
                       required
@@ -179,7 +191,7 @@ export default function RegisterPage() {
                     <input
                       type="text"
                       name="fullName"
-                      className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                      className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition text-gray-900 font-medium"
                       value={form.fullName}
                       onChange={handleChange}
                       required
@@ -190,7 +202,7 @@ export default function RegisterPage() {
                   <label className="block text-sm font-medium text-gray-700 mb-1">Gender</label>
                   <select
                     name="gender"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition text-black"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition text-gray-900 font-medium"
                     value={form.gender}
                     onChange={handleChange}
                     required
@@ -210,7 +222,7 @@ export default function RegisterPage() {
                     <input
                       type="date"
                       name="dob"
-                      className="w-full pl-10 text-black pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                      className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition text-gray-900 font-medium"
                       value={form.dob}
                       onChange={handleChange}
                       required
@@ -226,7 +238,7 @@ export default function RegisterPage() {
                     <input
                       type="text"
                       name="nationalId"
-                      className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                      className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition text-gray-900 font-medium"
                       value={form.nationalId}
                       onChange={handleChange}
                       required
@@ -244,7 +256,7 @@ export default function RegisterPage() {
                     <input
                       type="email"
                       name="email"
-                      className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                      className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition text-gray-900 font-medium"
                       value={form.email}
                       onChange={handleChange}
                       required
@@ -260,12 +272,31 @@ export default function RegisterPage() {
                     <input
                       type="password"
                       name="password"
-                      className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                      className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition text-gray-900 font-medium"
                       value={form.password}
-                      onChange={handleChange}
+                      onChange={handlePasswordChange}
                       required
                     />
                   </div>
+                  
+                  {/* Password validation message */}
+                  {passwordTouched && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -5 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="mt-2 text-sm font-medium"
+                    >
+                      {validatePassword(form.password) ? (
+                        <span className="text-green-600 flex items-center">
+                          ✓ Password is valid
+                        </span>
+                      ) : (
+                        <span className="text-red-600 flex items-center">
+                          ✗ Password must be at least 6 characters long
+                        </span>
+                      )}
+                    </motion.div>
+                  )}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Phone Number</label>
@@ -276,7 +307,7 @@ export default function RegisterPage() {
                     <input
                       type="tel"
                       name="phone"
-                      className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                      className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition text-gray-900 font-medium"
                       value={form.phone}
                       onChange={handleChange}
                       required
@@ -292,7 +323,7 @@ export default function RegisterPage() {
                     <input
                       type="text"
                       name="address"
-                      className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                      className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition text-gray-900 font-medium"
                       value={form.address}
                       onChange={handleChange}
                       required

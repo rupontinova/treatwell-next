@@ -14,7 +14,8 @@ export interface IPatient extends Document {
   resetPasswordExpire?: Date;
   otpCode?: string;
   otpExpire?: Date;
-  gender: 'Male' | 'Female' | 'Other';
+  isEmailVerified?: boolean;
+  gender: 'Male' | 'Female' | 'Other' | 'not-specified';
   dob: Date;
   nationalId: string;
   phone: string;
@@ -62,6 +63,10 @@ const PatientSchema: Schema<IPatient> = new mongoose.Schema({
     type: String,
     default: null,
   },
+  isEmailVerified: {
+    type: Boolean,
+    default: false,
+  },
   resetPasswordToken: {
     type: String,
     default: null,
@@ -81,7 +86,7 @@ const PatientSchema: Schema<IPatient> = new mongoose.Schema({
   gender: {
     type: String,
     required: [true, 'Please specify your gender'],
-    enum: ['Male', 'Female', 'Other'],
+    enum: ['Male', 'Female', 'Other', 'not-specified'],
   },
   dob: {
     type: Date,
@@ -119,14 +124,13 @@ PatientSchema.pre<IPatient>('save', async function (next) {
 // Sign JWT and return
 PatientSchema.methods.getSignedJwtToken = function (this: IPatient): string {
   const secret = process.env.JWT_SECRET;
-  const expiresIn = process.env.JWT_EXPIRE;
 
-  if (!secret || !expiresIn) {
-    throw new Error('JWT_SECRET or JWT_EXPIRE is not defined in environment variables');
+  if (!secret) {
+    throw new Error('JWT_SECRET is not defined in environment variables');
   }
 
   return jwt.sign({ id: this._id }, secret, {
-    expiresIn: expiresIn as any,
+    expiresIn: '30d', // Default to 30 days if JWT_EXPIRE is not set
   });
 };
 

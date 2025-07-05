@@ -38,7 +38,7 @@ const DoctorSchema: Schema<IDoctor> = new mongoose.Schema({
 });
 
 // Match password
-DoctorSchema.methods.matchPassword = async function (enteredPassword: any) {
+DoctorSchema.methods.matchPassword = async function (enteredPassword: string) {
   return await bcrypt.compare(enteredPassword, this.password);
 };
 

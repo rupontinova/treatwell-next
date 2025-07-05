@@ -1,7 +1,7 @@
 "use client";
 import React, { useRef, useState, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { Search, Stethoscope, Calendar, HeartPulse, User, Star, ShieldCheck } from 'lucide-react';
+import { useRouter, useSearchParams } from "next/navigation";
+import { Search, Stethoscope, Calendar, HeartPulse, User, Star, ShieldCheck, LogOut } from 'lucide-react';
 import { Notification } from '@/components/Notification';
 import { IDoctor } from "@/models/Doctor";
 
@@ -35,8 +35,37 @@ export default function Home() {
   const [featuredDoctors, setFeaturedDoctors] = useState<IDoctor[]>([]);
   const [specialities, setSpecialities] = useState<string[]>([]);
   const router = useRouter();
+  const searchParams = useSearchParams();
 
   useEffect(() => {
+    // Handle OAuth callback parameters
+    const tokenParam = searchParams.get('token');
+    const userParam = searchParams.get('user');
+    const welcomeParam = searchParams.get('welcome');
+
+    if (tokenParam && userParam) {
+      try {
+        const userData = JSON.parse(userParam);
+        localStorage.setItem('token', tokenParam);
+        localStorage.setItem('user', JSON.stringify(userData));
+        
+        if (welcomeParam) {
+          sessionStorage.setItem('showWelcome', 'true');
+        }
+        
+        // Clean up URL parameters
+        const url = new URL(window.location.href);
+        url.searchParams.delete('token');
+        url.searchParams.delete('user');
+        url.searchParams.delete('welcome');
+        window.history.replaceState({}, '', url.toString());
+        
+        setIsLoggedIn(true);
+      } catch (err) {
+        console.error('Failed to process OAuth callback:', err);
+      }
+    }
+
     const token = localStorage.getItem('token');
     setIsLoggedIn(!!token);
 
@@ -83,7 +112,7 @@ export default function Home() {
 
     fetchFeaturedDoctors();
     fetchSpecialities();
-  }, []);
+  }, [searchParams]);
 
   const handleSearch = () => {
     const query = new URLSearchParams({
@@ -194,7 +223,7 @@ export default function Home() {
                     Profile
                 </button>
                 <button
-                    className="px-5 py-2.5 bg-red-400 text-white font-semibold rounded-lg shadow-md hover:bg-red-700 transition-all duration-300"
+                    className="px-5 py-2.5 bg-red-600 text-white font-semibold rounded-lg shadow-md hover:bg-red-700 transition-all duration-300 flex items-center gap-2"
                     onClick={() => {
                       localStorage.removeItem('token');
                       localStorage.removeItem('user');
@@ -202,6 +231,7 @@ export default function Home() {
                       router.push('/');
                     }}
                 >
+                    <LogOut size={18} />
                     Logout
                 </button>
               </>

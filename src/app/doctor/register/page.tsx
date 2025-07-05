@@ -43,6 +43,8 @@ export default function DoctorRegisterPage() {
   const [error, setError] = useState("");
   const [success, setSuccess] = useState("");
   const [loading, setLoading] = useState(false);
+  const [passwordTouched, setPasswordTouched] = useState(false);
+  const [confirmPasswordTouched, setConfirmPasswordTouched] = useState(false);
   const router = useRouter();
 
   const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) => {
@@ -54,6 +56,36 @@ export default function DoctorRegisterPage() {
         setForm({ ...form, [name]: value });
     }
     setError("");
+  };
+
+  // Password validation function
+  const validatePassword = (pass: string) => {
+    return pass.length >= 6;
+  };
+
+  // Password match validation
+  const validatePasswordMatch = (pass: string, confirmPass: string) => {
+    return pass === confirmPass && pass.length > 0;
+  };
+
+  // Handle password change with validation
+  const handlePasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setForm({ ...form, password: value });
+    setError("");
+    if (!passwordTouched) {
+      setPasswordTouched(true);
+    }
+  };
+
+  // Handle confirm password change with validation
+  const handleConfirmPasswordChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setForm({ ...form, confirmPassword: value });
+    setError("");
+    if (!confirmPasswordTouched) {
+      setConfirmPasswordTouched(true);
+    }
   };
 
   const validate = () => {
@@ -72,11 +104,11 @@ export default function DoctorRegisterPage() {
       setError("Please enter a valid email address!");
       return false;
     }
-    if (form.password.length < 6) {
+    if (!validatePassword(form.password)) {
       setError("Password must be at least 6 characters long!");
       return false;
     }
-    if (form.password !== form.confirmPassword) {
+    if (!validatePasswordMatch(form.password, form.confirmPassword)) {
       setError("Passwords do not match!");
       return false;
     }
@@ -210,7 +242,7 @@ export default function DoctorRegisterPage() {
                     <input
                       type="text"
                       name="fullName"
-                      className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                      className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition text-gray-900 font-medium"
                       value={form.fullName}
                       onChange={handleChange}
                       required
@@ -241,7 +273,7 @@ export default function DoctorRegisterPage() {
                     <input
                       type="email"
                       name="email"
-                      className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                      className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition text-gray-900 font-medium"
                       value={form.email}
                       onChange={handleChange}
                       required
@@ -257,7 +289,7 @@ export default function DoctorRegisterPage() {
                     <input
                       type="tel"
                       name="phone"
-                      className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                      className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition text-gray-900 font-medium"
                       value={form.phone}
                       onChange={handleChange}
                       required
@@ -273,7 +305,7 @@ export default function DoctorRegisterPage() {
                     <input
                       type="text"
                       name="speciality"
-                      className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                      className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition text-gray-900 font-medium"
                       value={form.speciality}
                       onChange={handleChange}
                       required
@@ -289,7 +321,7 @@ export default function DoctorRegisterPage() {
                     <input
                       type="text"
                       name="location"
-                      className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                      className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition text-gray-900 font-medium"
                       value={form.location}
                       onChange={handleChange}
                       required
@@ -307,7 +339,7 @@ export default function DoctorRegisterPage() {
                     <input
                       type="text"
                       name="username"
-                      className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                      className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition text-gray-900 font-medium"
                       value={form.username}
                       onChange={handleChange}
                       required
@@ -323,12 +355,31 @@ export default function DoctorRegisterPage() {
                     <input
                       type="password"
                       name="password"
-                      className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                      className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition text-gray-900 font-medium"
                       value={form.password}
-                      onChange={handleChange}
+                      onChange={handlePasswordChange}
                       required
                     />
                   </div>
+                  
+                  {/* Password validation message */}
+                  {passwordTouched && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -5 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="mt-2 text-sm font-medium"
+                    >
+                      {validatePassword(form.password) ? (
+                        <span className="text-green-600 flex items-center">
+                          ✓ Password is valid
+                        </span>
+                      ) : (
+                        <span className="text-red-600 flex items-center">
+                          ✗ Password must be at least 6 characters long
+                        </span>
+                      )}
+                    </motion.div>
+                  )}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">Confirm Password</label>
@@ -339,12 +390,31 @@ export default function DoctorRegisterPage() {
                     <input
                       type="password"
                       name="confirmPassword"
-                      className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                      className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition text-gray-900 font-medium"
                       value={form.confirmPassword}
-                      onChange={handleChange}
+                      onChange={handleConfirmPasswordChange}
                       required
                     />
                   </div>
+                  
+                  {/* Confirm password validation message */}
+                  {confirmPasswordTouched && (
+                    <motion.div
+                      initial={{ opacity: 0, y: -5 }}
+                      animate={{ opacity: 1, y: 0 }}
+                      className="mt-2 text-sm font-medium"
+                    >
+                      {validatePasswordMatch(form.password, form.confirmPassword) ? (
+                        <span className="text-green-600 flex items-center">
+                          ✓ Passwords match
+                        </span>
+                      ) : (
+                        <span className="text-red-600 flex items-center">
+                          ✗ Passwords do not match
+                        </span>
+                      )}
+                    </motion.div>
+                  )}
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">BMDC Registration Number</label>
@@ -355,7 +425,7 @@ export default function DoctorRegisterPage() {
                     <input
                       type="text"
                       name="bmdc"
-                      className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                      className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition text-gray-900 font-medium"
                       value={form.bmdc}
                       onChange={handleChange}
                       required
@@ -371,7 +441,7 @@ export default function DoctorRegisterPage() {
                     <input
                       type="text"
                       name="designation"
-                      className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                      className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition text-gray-900 font-medium"
                       value={form.designation}
                       onChange={handleChange}
                       required
@@ -387,7 +457,7 @@ export default function DoctorRegisterPage() {
                     <input
                       type="text"
                       name="qualification"
-                      className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                      className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition text-gray-900 font-medium"
                       value={form.qualification}
                       onChange={handleChange}
                       required
@@ -407,7 +477,7 @@ export default function DoctorRegisterPage() {
                         <textarea
                             name="about"
                             rows={3}
-                            className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                            className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition text-gray-900 font-medium"
                             value={form.about}
                             onChange={handleChange}
                             required

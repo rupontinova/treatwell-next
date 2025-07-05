@@ -12,9 +12,10 @@ interface IUser {
     email: string;
     phone: string;
     address: string;
-    gender: 'Male' | 'Female' | 'Other';
+    gender: 'Male' | 'Female' | 'Other' | 'not-specified';
     dob: string | Date;
     nationalId: string;
+    googleId?: string;
     profilePicture?: string;
 }
 
@@ -29,14 +30,23 @@ export default function ProfilePage() {
     fullName: '',
     username: '',
     phone: '',
-    address: ''
+    address: '',
+    gender: 'not-specified' as 'Male' | 'Female' | 'Other' | 'not-specified',
+    dob: '',
+    nationalId: ''
   });
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
-  const calculateAge = (dob: string | Date): number => {
+  const calculateAge = (dob: string | Date): number | string => {
     const birthDate = new Date(dob);
     const today = new Date();
+    
+    // Check if date is invalid or default
+    if (!dob || birthDate.getFullYear() === 1970 || isNaN(birthDate.getTime())) {
+      return 'Not specified';
+    }
+    
     let age = today.getFullYear() - birthDate.getFullYear();
     const monthDiff = today.getMonth() - birthDate.getMonth();
     
@@ -46,6 +56,31 @@ export default function ProfilePage() {
     
     return age;
   };
+
+  // Helper function to display user-friendly values
+  const getDisplayValue = (value: string, field: string): string => {
+    if (!value || value === 'not-provided' || value === 'not-specified') {
+      return 'Not specified';
+    }
+    
+    // For Google OAuth users with random IDs
+    if (field === 'nationalId' && value.startsWith('google-')) {
+      return 'Not specified';
+    }
+    
+    return value;
+  };
+
+  // Helper function to get display gender
+  const getDisplayGender = (gender: string): string => {
+    if (gender === 'not-specified' || !gender) {
+      return 'Not specified';
+    }
+    return gender;
+  };
+
+  // Check if user is Google OAuth user
+  const isGoogleUser = userData?.googleId ? true : false;
 
   useEffect(() => {
     const fetchUserData = async () => {
@@ -71,7 +106,10 @@ export default function ProfilePage() {
             fullName: data.data.fullName,
             username: data.data.username,
             phone: data.data.phone,
-            address: data.data.address
+            address: data.data.address,
+            gender: data.data.gender || 'not-specified',
+            dob: data.data.dob ? new Date(data.data.dob).toISOString().split('T')[0] : '',
+            nationalId: data.data.nationalId || ''
         });
         setProfileImage(data.data.profilePicture);
 
@@ -90,7 +128,7 @@ export default function ProfilePage() {
     fetchUserData();
   }, [router]);
 
-  const handleFormChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleFormChange = (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
   
@@ -218,12 +256,26 @@ export default function ProfilePage() {
                     <div className="mt-6 w-full space-y-2">
                         <button onClick={() => setIsEditing(!isEditing)} className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 font-semibold rounded-lg hover:bg-gray-200 transition-all">
                             {isEditing ? <><X size={18}/> Cancel</> : <><Edit size={18}/> Edit Profile</>}
-                    </button>
-                         <Link href="/change-password" legacyBehavior>
-                           <a className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 font-semibold rounded-lg hover:bg-gray-200 transition-all">
-                                <Key size={18}/> Change Password
-                           </a>
-                        </Link>
+                        </button>
+                        
+                        {/* Show Change Password only for non-Google users */}
+                        {!isGoogleUser ? (
+                            <Link href="/change-password" legacyBehavior>
+                                <a className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 font-semibold rounded-lg hover:bg-gray-200 transition-all">
+                                    <Key size={18}/> Change Password
+                                </a>
+                            </Link>
+                        ) : (
+                            <div className="w-full p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                                <div className="flex items-center gap-2 text-blue-600 mb-1">
+                                    <Key size={16}/> 
+                                    <span className="font-medium">Password Management</span>
+                                </div>
+                                <p className="text-sm text-blue-500">
+                                    You signed in with Google. Password changes are managed through your Google account.
+                                </p>
+                            </div>
+                        )}
                     </div>
           </div>
 
@@ -234,19 +286,36 @@ export default function ProfilePage() {
                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
-                                    <input type="text" name="fullName" value={formData.fullName} onChange={handleFormChange} className="w-full pl-4 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+                                    <input type="text" name="fullName" value={formData.fullName} onChange={handleFormChange} className="w-full pl-4 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 font-medium"/>
               </div>
               <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">Username</label>
-                                    <input type="text" name="username" value={formData.username} onChange={handleFormChange} className="w-full pl-4 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+                                    <input type="text" name="username" value={formData.username} onChange={handleFormChange} className="w-full pl-4 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 font-medium"/>
               </div>
               <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">Phone</label>
-                                    <input type="text" name="phone" value={formData.phone} onChange={handleFormChange} className="w-full pl-4 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+                                    <input type="text" name="phone" value={formData.phone === 'not-provided' ? '' : formData.phone} onChange={handleFormChange} className="w-full pl-4 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 font-medium"/>
               </div>
               <div>
                                     <label className="block text-sm font-medium text-gray-700 mb-1">Address</label>
-                                    <input type="text" name="address" value={formData.address} onChange={handleFormChange} className="w-full pl-4 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"/>
+                                    <input type="text" name="address" value={formData.address === 'not-provided' ? '' : formData.address} onChange={handleFormChange} className="w-full pl-4 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 font-medium"/>
+              </div>
+              <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Gender</label>
+                                    <select name="gender" value={formData.gender} onChange={handleFormChange} className="w-full pl-4 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 font-medium">
+                                        <option value="not-specified">Not specified</option>
+                                        <option value="Male">Male</option>
+                                        <option value="Female">Female</option>
+                                        <option value="Other">Other</option>
+                                    </select>
+              </div>
+              <div>
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">Date of Birth</label>
+                                    <input type="date" name="dob" value={formData.dob} onChange={handleFormChange} className="w-full pl-4 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 font-medium"/>
+              </div>
+              <div className="md:col-span-2">
+                                    <label className="block text-sm font-medium text-gray-700 mb-1">National ID</label>
+                                    <input type="text" name="nationalId" value={formData.nationalId.startsWith('google-') ? '' : formData.nationalId} onChange={handleFormChange} className="w-full pl-4 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 font-medium" placeholder="Enter your national ID number"/>
               </div>
             </div>
                            <div className="flex justify-end gap-4">
@@ -261,11 +330,11 @@ export default function ProfilePage() {
                             <DetailItem icon={<User />} label="Full Name" value={userData.fullName} />
                             <DetailItem icon={<VenetianMask />} label="Username" value={userData.username} />
                             <DetailItem icon={<Mail />} label="Email" value={userData.email} />
-                            <DetailItem icon={<Phone />} label="Phone" value={userData.phone} />
-                            <DetailItem icon={<MapPin />} label="Address" value={userData.address} />
-                            <DetailItem icon={<Users />} label="Gender" value={userData.gender} />
+                            <DetailItem icon={<Phone />} label="Phone" value={getDisplayValue(userData.phone, 'phone')} />
+                            <DetailItem icon={<MapPin />} label="Address" value={getDisplayValue(userData.address, 'address')} />
+                            <DetailItem icon={<Users />} label="Gender" value={getDisplayGender(userData.gender)} />
                             <DetailItem icon={<Calendar />} label="Age" value={calculateAge(userData.dob)} />
-                            <DetailItem icon={<Shield />} label="National ID" value={userData.nationalId} />
+                            <DetailItem icon={<Shield />} label="National ID" value={getDisplayValue(userData.nationalId, 'nationalId')} />
               </div>
                     )}
             </div>

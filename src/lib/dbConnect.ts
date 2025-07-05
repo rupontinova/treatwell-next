@@ -14,6 +14,7 @@ if (!MONGODB_URI) {
  * during API Route usage.
  */
 declare global {
+  // eslint-disable-next-line no-var
   var mongoose: {
     conn: Mongoose | null;
     promise: Promise<Mongoose> | null;

@@ -16,7 +16,7 @@ import {
   ChartOptions
 } from 'chart.js';
 import { IHealthData } from '@/models/HealthData';
-import { HeartPulse, Ruler, Weight, Activity, BrainCircuit } from 'lucide-react';
+import { HeartPulse, Ruler, Weight, Activity, BrainCircuit, ArrowLeft } from 'lucide-react';
 
 ChartJS.register(
   CategoryScale,
@@ -77,6 +77,14 @@ export default function HealthTrackerPage() {
 
     fetchHealthData();
   }, [router]);
+
+  const handleGoBack = () => {
+    if (window.history.length > 1) {
+      router.back();
+    } else {
+      router.push('/');
+    }
+  };
 
   const saveData = async (type: 'bmi' | 'bp', data: any) => {
     try {
@@ -227,17 +235,27 @@ export default function HealthTrackerPage() {
   return (
     <div className="min-h-screen bg-gray-50 font-sans">
        <nav className="flex items-center justify-between px-6 md:px-10 py-4 bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-40">
-        <div
-          className="text-3xl font-bold text-blue-600 cursor-pointer select-none"
-          onClick={() => router.push('/')}
-        >
-          TreatWell
+        <div className="flex items-center gap-4">
+          <button
+            onClick={handleGoBack}
+            className="flex items-center gap-2 text-gray-600 hover:text-blue-600 font-medium transition-colors py-2 px-3 rounded-lg hover:bg-gray-100"
+            title="Go back to previous page"
+          >
+            <ArrowLeft className="w-5 h-5" />
+            <span className="hidden sm:inline">Back</span>
+          </button>
+          <div
+            className="text-3xl font-bold text-blue-600 cursor-pointer select-none"
+            onClick={() => router.push('/')}
+          >
+            TreatWell
+          </div>
         </div>
         <Link
           href="/"
           className="text-gray-600 hover:text-blue-600 font-medium transition-colors"
         >
-          Back to Home
+          Home
         </Link>
       </nav>
 
@@ -260,9 +278,9 @@ export default function HealthTrackerPage() {
                 <div className="flex gap-2">
                   <div className="relative flex-1">
                     <Ruler className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                    <input type="number" value={height} onChange={(e) => setHeight(e.target.value)} className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700" placeholder="Enter height"/>
+                    <input type="number" value={height} onChange={(e) => setHeight(e.target.value)} className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 font-medium" placeholder="Enter height"/>
                   </div>
-                  <select value={heightUnit} onChange={(e) => setHeightUnit(e.target.value)} className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700 bg-white">
+                  <select value={heightUnit} onChange={(e) => setHeightUnit(e.target.value)} className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 font-medium bg-white">
                     <option value="cm">cm</option>
                     <option value="m">m</option>
                     <option value="inches">inches</option>
@@ -275,9 +293,9 @@ export default function HealthTrackerPage() {
                 <div className="flex gap-2">
                   <div className="relative flex-1">
                     <Weight className="absolute left-3 top-1/2 -translate-y-1/2 w-5 h-5 text-gray-400" />
-                    <input type="number" value={weight} onChange={(e) => setWeight(e.target.value)} className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700" placeholder="Enter weight"/>
+                    <input type="number" value={weight} onChange={(e) => setWeight(e.target.value)} className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 font-medium" placeholder="Enter weight"/>
                   </div>
-                  <select value={weightUnit} onChange={(e) => setWeightUnit(e.target.value)} className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700 bg-white">
+                  <select value={weightUnit} onChange={(e) => setWeightUnit(e.target.value)} className="px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 font-medium bg-white">
                     <option value="kg">kg</option>
                     <option value="pounds">pounds</option>
                   </select>
@@ -310,13 +328,13 @@ export default function HealthTrackerPage() {
               <div className="relative">
                 <label className="block text-sm font-medium text-gray-700 mb-2">Systolic Pressure (mmHg)</label>
                  <Activity className="absolute left-3 bottom-3 w-5 h-5 text-gray-400" />
-                <input type="number" value={systolic} onChange={(e) => setSystolic(e.target.value)} className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700" placeholder="e.g., 120"/>
+                <input type="number" value={systolic} onChange={(e) => setSystolic(e.target.value)} className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 font-medium" placeholder="e.g., 120"/>
               </div>
 
               <div className="relative">
                 <label className="block text-sm font-medium text-gray-700 mb-2">Diastolic Pressure (mmHg)</label>
                 <Activity className="absolute left-3 bottom-3 w-5 h-5 text-gray-400" />
-                <input type="number" value={diastolic} onChange={(e) => setDiastolic(e.target.value)} className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700" placeholder="e.g., 80"/>
+                <input type="number" value={diastolic} onChange={(e) => setDiastolic(e.target.value)} className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 font-medium" placeholder="e.g., 80"/>
               </div>
 
               <button onClick={calculateBP} className="w-full px-6 py-3 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 transition-all duration-300">Calculate & Save BP</button>

@@ -146,7 +146,7 @@ export default function DoctorLoginPage() {
                     </div>
                     <input
                       type="text"
-                      className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 font-medium"
                       value={username}
                       onChange={e => setUsername(e.target.value)}
                       required
@@ -164,7 +164,7 @@ export default function DoctorLoginPage() {
                     </div>
                     <input
                       type={showPassword ? "text" : "password"}
-                      className="w-full pl-10 pr-16 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                      className="w-full pl-10 pr-16 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 font-medium"
                       value={password}
                       onChange={e => setPassword(e.target.value)}
                       required
@@ -197,7 +197,7 @@ export default function DoctorLoginPage() {
                   </div>
                   <input
                     type="text"
-                    className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="w-full pl-10 pr-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 font-medium"
                     value={bmdcNumber}
                     onChange={e => setBmdcNumber(e.target.value)}
                     required
@@ -214,6 +214,16 @@ export default function DoctorLoginPage() {
               {loading ? (step === 1 ? 'Validating...' : 'Logging in...') : (step === 1 ? 'Validate' : 'Sign in')}
               <ArrowRight className="ml-2 h-4 w-4" />
             </motion.button>
+            
+            {/* Are you a patient link */}
+            <div className="text-center">
+              <button
+                className="text-gray-600 hover:text-blue-600 font-medium transition-colors px-4 py-2 border border-gray-200 rounded-full hover:bg-gray-50"
+                onClick={() => router.push("/login")}
+              >
+                Are you a patient?
+              </button>
+            </div>
             
             <div className="mt-6">
               <div className="relative">
