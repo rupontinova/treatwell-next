@@ -1,8 +1,103 @@
 "use client";
 import React, { useRef, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Search, Stethoscope, Calendar, HeartPulse, User, Star, ShieldCheck, Briefcase, UserCheck, LogOut } from 'lucide-react';
+import { Search, Stethoscope, Calendar, HeartPulse, User, Star, ShieldCheck, Briefcase, UserCheck, LogOut, Send } from 'lucide-react';
 import { Notification } from '@/components/Notification';
+import { IReviewDoctor } from "@/models/ReviewDoctor";
+
+interface ReviewFormProps {
+  reviewRating: number;
+  setReviewRating: (rating: number) => void;
+  reviewMessage: string;
+  setReviewMessage: (message: string) => void;
+  reviewError: string;
+  setReviewError: (error: string) => void;
+  reviewLoading: boolean;
+  handleSubmitReview: () => void;
+}
+
+const StarRating = ({ rating, onRatingChange, readonly = false }: { rating: number, onRatingChange?: (rating: number) => void, readonly?: boolean }) => (
+  <div className="flex justify-center mb-4">
+    {[...Array(5)].map((_, i) => (
+      <Star
+        key={i}
+        className={`w-5 h-5 ${i < rating ? 'text-yellow-400 fill-current' : 'text-gray-300'} ${
+          !readonly ? 'cursor-pointer hover:text-yellow-400' : ''
+        }`}
+        onClick={() => !readonly && onRatingChange && onRatingChange(i + 1)}
+      />
+    ))}
+  </div>
+);
+
+const ReviewForm = ({ 
+  reviewRating, 
+  setReviewRating, 
+  reviewMessage, 
+  setReviewMessage, 
+  reviewError, 
+  setReviewError, 
+  reviewLoading, 
+  handleSubmitReview 
+}: ReviewFormProps) => (
+  <div className="bg-white rounded-xl shadow-lg p-6 h-full flex flex-col justify-between">
+    <div className="flex-1 flex flex-col">
+      <h3 className="text-xl font-bold text-gray-800 mb-4 text-center">Write a Review</h3>
+      
+      {reviewError && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-3 mb-3">
+          <p className="text-red-600 text-sm">{reviewError}</p>
+        </div>
+      )}
+      
+      <div className="mb-3">
+        <label className="block text-sm font-medium text-gray-700 mb-2">Rating</label>
+        <StarRating rating={reviewRating} onRatingChange={setReviewRating} />
+      </div>
+      
+      <div className="flex-1 flex flex-col">
+        <label className="block text-sm font-medium text-gray-700 mb-2">Your Review</label>
+        <textarea
+          value={reviewMessage}
+          onChange={(e) => setReviewMessage(e.target.value)}
+          placeholder="Share your experience with TreatWell as a healthcare provider..."
+          className="w-full flex-1 p-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-900 resize-none"
+          maxLength={500}
+        />
+        <div className="text-right text-sm text-gray-500 mt-1">
+          {reviewMessage.length}/500
+        </div>
+      </div>
+    </div>
+    
+    <div className="flex gap-4 mt-4">
+      <button
+        onClick={() => {
+          setReviewError("");
+          setReviewRating(0);
+          setReviewMessage("");
+        }}
+        className="flex-1 px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition"
+      >
+        Clear
+      </button>
+      <button
+        onClick={handleSubmitReview}
+        disabled={reviewLoading || !reviewRating || !reviewMessage.trim()}
+        className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+      >
+        {reviewLoading ? (
+          "Submitting..."
+        ) : (
+          <>
+            <Send className="w-4 h-4" />
+            Submit
+          </>
+        )}
+      </button>
+    </div>
+  </div>
+);
 
 const LoginModal = ({ feature, onClose, onConfirm }: { feature: string, onClose: () => void, onConfirm: () => void }) => {
     useEffect(() => {
@@ -33,9 +128,16 @@ const LoginModal = ({ feature, onClose, onConfirm }: { feature: string, onClose:
 
 export default function DoctorHome() {
   const servicesRef = useRef<HTMLDivElement>(null);
+  const reviewsRef = useRef<HTMLDivElement>(null);
   const [modalInfo, setModalInfo] = useState<{ feature: string; visible: boolean } | null>(null);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const [notification, setNotification] = useState({ message: "", isVisible: false });
+  const [reviews, setReviews] = useState<IReviewDoctor[]>([]);
+  const [reviewRating, setReviewRating] = useState(0);
+  const [reviewMessage, setReviewMessage] = useState("");
+  const [reviewLoading, setReviewLoading] = useState(false);
+  const [reviewError, setReviewError] = useState("");
+  const [reviewSuccess, setReviewSuccess] = useState("");
   const router = useRouter();
 
   useEffect(() => {
@@ -48,6 +150,20 @@ export default function DoctorHome() {
       setNotification({ message: welcomeMessage, isVisible: true });
       localStorage.removeItem('welcomeMessage');
     }
+
+    const fetchReviews = async () => {
+      try {
+        const res = await fetch('/api/reviews-doctor');
+        if (res.ok) {
+          const data = await res.json();
+          setReviews(data.data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch doctor reviews", error);
+      }
+    };
+
+    fetchReviews();
   }, []);
 
   const requireLogin = (feature: string, path?: string) => {
@@ -82,6 +198,56 @@ export default function DoctorHome() {
     servicesRef.current?.scrollIntoView({ behavior: "smooth" });
   };
 
+  const scrollToReviews = () => {
+    reviewsRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
+  const handleSubmitReview = async () => {
+    if (!reviewRating || !reviewMessage.trim()) {
+      setReviewError("Please provide both rating and review message");
+      return;
+    }
+
+    setReviewError("");
+    setReviewLoading(true);
+
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch('/api/reviews-doctor', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          rating: reviewRating,
+          reviewMessage: reviewMessage.trim()
+        })
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        setReviewSuccess("Review submitted successfully!");
+        setReviewRating(0);
+        setReviewMessage("");
+        // Refresh reviews
+        const reviewsRes = await fetch('/api/reviews-doctor');
+        if (reviewsRes.ok) {
+          const reviewsData = await reviewsRes.json();
+          setReviews(reviewsData.data);
+        }
+        setTimeout(() => setReviewSuccess(""), 3000);
+      } else {
+        setReviewError(data.message || "Failed to submit review");
+      }
+    } catch (error) {
+      setReviewError("Failed to submit review. Please try again.");
+    } finally {
+      setReviewLoading(false);
+    }
+  };
+
   const FeatureCard = ({ icon, title, children }: { icon: React.ReactNode, title: string, children: React.ReactNode }) => (
     <div className="bg-white p-6 rounded-xl shadow-lg hover:shadow-2xl transition-shadow duration-300 flex flex-col items-center text-center">
       <div className="bg-blue-100 text-blue-600 p-4 rounded-full mb-4">
@@ -107,11 +273,9 @@ export default function DoctorHome() {
       </div>
   );
 
-  const TestimonialCard = ({ quote, name, role }: { quote: string, name: string, role: string }) => (
+  const TestimonialCard = ({ quote, name, role, rating }: { quote: string, name: string, role: string, rating: number }) => (
       <div className="bg-white p-8 rounded-xl shadow-lg text-center">
-        <div className="text-yellow-400 flex justify-center mb-4">
-            {[...Array(5)].map((_, i) => <Star key={i} className="w-5 h-5 fill-current" />)}
-        </div>
+        <StarRating rating={rating} readonly={true} />
         <p className="text-gray-600 italic mb-6">"{quote}"</p>
         <div className="font-semibold text-gray-800">{name}</div>
         <div className="text-sm text-gray-500">{role}</div>
@@ -259,17 +423,104 @@ export default function DoctorHome() {
                     quote="TreatWell has been a game-changer for my private practice. I can manage appointments and patient records so efficiently."
                     name="Dr. Evelyn Reed"
                     role="Cardiologist"
+                    rating={5}
                 />
                 <TestimonialCard 
                     quote="The platform is intuitive and has significantly reduced my administrative workload, allowing me to focus more on patient care."
                     name="Dr. Marcus Thorne"
                     role="Neurologist"
+                    rating={5}
                 />
                 <TestimonialCard 
                     quote="A fantastic tool for reaching new patients and managing my schedule. I highly recommend it to my colleagues."
                     name="Dr. Elena Vasquez"
                     role="Dermatologist"
+                    rating={5}
                 />
+            </div>
+        </div>
+      </section>
+
+      <section ref={reviewsRef} className="py-24 bg-blue-50/50">
+        <div className="max-w-6xl mx-auto px-6">
+            <div className="text-center mb-16">
+                <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">What Our Doctors Say</h2>
+                <p className="text-lg text-gray-500 max-w-3xl mx-auto">We are proud to have helped so many healthcare professionals enhance their practice.</p>
+                
+                {/* Success Message */}
+                {reviewSuccess && (
+                  <div className="mt-4 bg-green-50 border border-green-200 rounded-lg p-4 max-w-md mx-auto">
+                    <p className="text-green-600 text-sm">{reviewSuccess}</p>
+                  </div>
+                )}
+            </div>
+            
+            {/* Review Form and Thanks Image for Logged In Doctors */}
+            {isLoggedIn && (
+              <div className="flex flex-col lg:flex-row gap-8 items-start justify-center mb-12 max-w-6xl mx-auto">
+                {/* Review Form */}
+                <div className="flex-1 w-full max-w-md mx-auto lg:mx-0">
+                  <div className="aspect-square w-full">
+                    <ReviewForm
+                      reviewRating={reviewRating}
+                      setReviewRating={setReviewRating}
+                      reviewMessage={reviewMessage}
+                      setReviewMessage={setReviewMessage}
+                      reviewError={reviewError}
+                      setReviewError={setReviewError}
+                      reviewLoading={reviewLoading}
+                      handleSubmitReview={handleSubmitReview}
+                    />
+                  </div>
+                </div>
+                
+                {/* Thanks Image Section */}
+                <div className="flex-1 w-full max-w-md mx-auto lg:mx-0">
+                  <div className="aspect-square w-full">
+                    <img 
+                      src="/thanks.jpg"
+                      alt="Thank you message"
+                      className="w-full h-full object-cover object-center"
+                    />
+                  </div>
+                </div>
+              </div>
+            )}
+            
+            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                {reviews.length > 0 ? (
+                  reviews.map((review, index) => (
+                    <TestimonialCard 
+                      key={index}
+                      quote={review.reviewMessage}
+                      name={review.doctorName}
+                      role="Doctor"
+                      rating={review.rating}
+                    />
+                  ))
+                ) : (
+                  // Fallback content if no reviews yet
+                  <>
+                <TestimonialCard 
+                    quote="TreatWell has been a game-changer for my private practice. I can manage appointments and patient records so efficiently."
+                    name="Dr. Evelyn Reed"
+                    role="Cardiologist"
+                    rating={5}
+                />
+                <TestimonialCard 
+                    quote="The platform is intuitive and has significantly reduced my administrative workload, allowing me to focus more on patient care."
+                    name="Dr. Marcus Thorne"
+                    role="Neurologist"
+                    rating={5}
+                />
+                <TestimonialCard 
+                    quote="A fantastic tool for reaching new patients and managing my schedule. I highly recommend it to my colleagues."
+                    name="Dr. Elena Vasquez"
+                    role="Dermatologist"
+                    rating={5}
+                />
+                  </>
+                )}
             </div>
         </div>
       </section>
@@ -305,9 +556,9 @@ export default function DoctorHome() {
             </div>
              <div>
               <h3 className="text-lg font-semibold mb-4">Feedback</h3>
-               <p className="text-gray-400 mb-2 text-sm">Help us improve our services.</p>
+               <p className="text-gray-400 mb-2 text-sm">We value your feedback!</p>
               <button 
-                onClick={() => requireLogin("Feedback", "/feedback")}
+                onClick={scrollToReviews}
                 className="text-blue-400 hover:text-blue-300 transition font-semibold"
               >
                 Send Feedback

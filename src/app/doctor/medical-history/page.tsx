@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
 import { IAppointment } from '@/models/Appointment';
 import { IPrescription } from '@/models/Prescription';
@@ -26,6 +26,75 @@ import {
   Pill,
   History
 } from 'lucide-react';
+
+const AnimatedCounter = ({ value, prefix = "", suffix = "", inline = false }: { value: number, prefix?: string, suffix?: string, inline?: boolean }) => {
+  const [displayValue, setDisplayValue] = useState(0);
+  const [isVisible, setIsVisible] = useState(false);
+  const [isAnimating, setIsAnimating] = useState(false);
+  const counterRef = useRef<any>(null);
+
+  // Intersection Observer to trigger animation when visible
+  useEffect(() => {
+    const observer = new IntersectionObserver(
+      ([entry]) => {
+        if (entry.isIntersecting && !isVisible) {
+          setIsVisible(true);
+        }
+      },
+      { threshold: 0.5 }
+    );
+
+    if (counterRef.current) {
+      observer.observe(counterRef.current);
+    }
+
+    return () => observer.disconnect();
+  }, [isVisible]);
+
+  // Counting animation effect
+  useEffect(() => {
+    if (isVisible && value > 0) {
+      setIsAnimating(true);
+      let startTime: number;
+      const duration = 2000; // 2 seconds animation
+      const startValue = 0;
+      const endValue = value;
+
+      const animate = (timestamp: number) => {
+        if (!startTime) startTime = timestamp;
+        const progress = Math.min((timestamp - startTime) / duration, 1);
+        
+        // Easing function for smooth animation
+        const easeOutQuart = 1 - Math.pow(1 - progress, 4);
+        const currentValue = Math.round(startValue + (endValue - startValue) * easeOutQuart);
+        
+        setDisplayValue(currentValue);
+
+        if (progress < 1) {
+          requestAnimationFrame(animate);
+        } else {
+          setIsAnimating(false);
+        }
+      };
+
+      requestAnimationFrame(animate);
+    }
+  }, [isVisible, value]);
+
+  const Element = inline ? 'span' : 'p';
+  const className = inline 
+    ? `transition-all duration-300 ${isAnimating ? 'animate-pulse' : ''}` 
+    : `text-2xl font-bold transition-all duration-300 ${isAnimating ? 'animate-pulse scale-105' : ''}`;
+
+  return (
+    <Element 
+      ref={counterRef}
+      className={className}
+    >
+      {prefix}{displayValue}{suffix}
+    </Element>
+  );
+};
 
 export default function MedicalHistoryPage() {
   const router = useRouter();
@@ -190,7 +259,9 @@ export default function MedicalHistoryPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Total Patients</p>
-                <p className="text-2xl font-bold text-blue-600">{totalPatients}</p>
+                <div className="text-blue-600">
+                  <AnimatedCounter value={totalPatients} />
+                </div>
               </div>
               <Users className="w-8 h-8 text-blue-500" />
             </div>
@@ -199,7 +270,9 @@ export default function MedicalHistoryPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Total Earnings</p>
-                <p className="text-2xl font-bold text-green-600">৳{totalEarnings}</p>
+                <div className="text-green-600">
+                  <AnimatedCounter value={totalEarnings} prefix="৳" />
+                </div>
               </div>
               <Banknote className="w-8 h-8 text-green-500" />
             </div>
@@ -208,7 +281,9 @@ export default function MedicalHistoryPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Prescriptions</p>
-                <p className="text-2xl font-bold text-purple-600">{totalPrescriptions}</p>
+                <div className="text-purple-600">
+                  <AnimatedCounter value={totalPrescriptions} />
+                </div>
               </div>
               <Pill className="w-8 h-8 text-purple-500" />
             </div>
@@ -217,7 +292,9 @@ export default function MedicalHistoryPage() {
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm font-medium text-gray-600">Consultations</p>
-                <p className="text-2xl font-bold text-orange-600">{appointments.length}</p>
+                <div className="text-orange-600">
+                  <AnimatedCounter value={appointments.length} />
+                </div>
               </div>
               <Activity className="w-8 h-8 text-orange-500" />
             </div>
@@ -237,7 +314,7 @@ export default function MedicalHistoryPage() {
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
               >
-                All ({appointments.length})
+                All (<AnimatedCounter value={appointments.length} inline={true} />)
               </button>
               <button
                 onClick={() => setFilter('paid')}
@@ -247,7 +324,7 @@ export default function MedicalHistoryPage() {
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
               >
-                Paid ({appointments.filter(a => a.paymentStatus === 'paid').length})
+                Paid (<AnimatedCounter value={appointments.filter(a => a.paymentStatus === 'paid').length} inline={true} />)
               </button>
               <button
                 onClick={() => setFilter('unpaid')}
@@ -257,7 +334,7 @@ export default function MedicalHistoryPage() {
                     : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
                 }`}
               >
-                Unpaid ({appointments.filter(a => a.paymentStatus === 'unpaid').length})
+                Unpaid (<AnimatedCounter value={appointments.filter(a => a.paymentStatus === 'unpaid').length} inline={true} />)
               </button>
             </div>
           </div>

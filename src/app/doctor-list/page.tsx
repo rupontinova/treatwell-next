@@ -234,6 +234,53 @@ function DoctorListComponent() {
           </>
         )}
       </main>
+
+      <footer className="bg-gray-800 text-white">
+        <div className="max-w-6xl mx-auto px-6 py-16">
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8">
+            <div className="col-span-2 lg:col-span-2">
+              <h3 className="text-2xl font-bold text-white mb-4">TreatWell</h3>
+              <p className="text-gray-400 max-w-sm">
+                Your comprehensive healthcare platform, connecting patients with doctors and providing tools for better health management.
+              </p>
+            </div>
+            
+            <div>
+              <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
+              <ul className="space-y-2">
+                <li><button onClick={() => router.push("/doctor-list")} className="text-gray-400 hover:text-white transition">Find a Doctor</button></li>
+                <li><button onClick={() => router.push("/appointments")} className="text-gray-400 hover:text-white transition">Appointments</button></li>
+                <li><button onClick={() => router.push("/medical-history")} className="text-gray-400 hover:text-white transition">Medical History</button></li>
+                <li><button onClick={() => router.push("/health-tracker")} className="text-gray-400 hover:text-white transition">Health Tracker</button></li>
+                <li><button onClick={() => router.push("/login")} className="text-gray-400 hover:text-white transition">Login</button></li>
+              </ul>
+            </div>
+
+            <div>
+              <h3 className="text-lg font-semibold mb-4">Contact</h3>
+              <ul className="space-y-2 text-gray-400">
+                <li><p>Ruponti Muin Nova</p></li>
+                <li><p>Jawad Anzum Fahim</p></li>
+                <li className="pt-2"><a href="mailto:ruponti@gmail.com" className="hover:text-white transition">ruponti@gmail.com</a></li>
+              </ul>
+            </div>
+             <div>
+              <h3 className="text-lg font-semibold mb-4">Feedback</h3>
+               <p className="text-gray-400 mb-2 text-sm">We value your feedback!</p>
+              <button 
+                onClick={() => router.push("/")}
+                className="text-blue-400 hover:text-blue-300 transition font-semibold"
+              >
+                Send Feedback
+              </button>
+            </div>
+          </div>
+
+          <div className="border-t border-gray-700 mt-10 pt-8 text-center text-gray-500">
+            <p>&copy; {new Date().getFullYear()} TreatWell. All rights reserved.</p>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }
