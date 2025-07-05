@@ -207,7 +207,7 @@ export default function DoctorLoginPage() {
             )}
 
             <div className="text-right">
-              <a href="/forgot-password" className="text-sm text-blue-600 hover:text-blue-500">Forgot password?</a>
+              <a href="/doctor/forgot-password" className="text-sm text-blue-600 hover:text-blue-500">Forgot password?</a>
             </div>
 
             <motion.button whileHover={{ scale: 1.02 }} whileTap={{ scale: 0.98 }} type="submit" className="w-full flex items-center justify-center px-4 py-2 border border-transparent rounded-lg shadow-sm text-white bg-blue-600 hover:bg-blue-700" disabled={loading}>

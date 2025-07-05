@@ -1,25 +1,35 @@
 "use client";
 import React, { useRef, useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { Search, Stethoscope, Calendar, HeartPulse, User, Star, ShieldCheck, Briefcase, UserCheck } from 'lucide-react';
+import { Search, Stethoscope, Calendar, HeartPulse, User, Star, ShieldCheck, Briefcase, UserCheck, LogOut } from 'lucide-react';
 import { Notification } from '@/components/Notification';
 
-const LoginModal = ({ feature, onClose, onConfirm }: { feature: string, onClose: () => void, onConfirm: () => void }) => (
-    <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50">
-        <div className="bg-white rounded-lg p-8 shadow-2xl max-w-sm w-full transform transition-all duration-300 scale-95 hover:scale-100">
-            <h2 className="text-2xl font-bold text-gray-800 mb-4">Login Required</h2>
-            <p className="text-gray-600 mb-6">Please log in to access this feature.</p>
-            <div className="flex justify-end gap-4">
-                <button onClick={onClose} className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition">
-                    Cancel
-                </button>
-                <button onClick={onConfirm} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
-                    Go to Login
-                </button>
+const LoginModal = ({ feature, onClose, onConfirm }: { feature: string, onClose: () => void, onConfirm: () => void }) => {
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            onClose();
+        }, 5000); // Auto close after 5 seconds
+
+        return () => clearTimeout(timer);
+    }, [onClose]);
+
+    return (
+        <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50">
+            <div className="bg-white rounded-lg p-8 shadow-2xl max-w-sm w-full transform transition-all duration-300 scale-95 hover:scale-100">
+                <h2 className="text-2xl font-bold text-gray-800 mb-4">Login Required</h2>
+                <p className="text-gray-600 mb-6">Please log in to access this feature.</p>
+                <div className="flex justify-end gap-4">
+                    <button onClick={onClose} className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition">
+                        Cancel
+                    </button>
+                    <button onClick={onConfirm} className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition">
+                        Go to Login
+                    </button>
+                </div>
             </div>
         </div>
-    </div>
-);
+    );
+};
 
 export default function DoctorHome() {
   const servicesRef = useRef<HTMLDivElement>(null);
@@ -128,9 +138,6 @@ export default function DoctorHome() {
           TreatWell
         </div>
         <div className="hidden md:flex items-center space-x-6">
-          <button className="text-gray-600 hover:text-blue-600 font-medium transition-colors" onClick={() => router.push("/doctor-list")}>
-            Doctors
-          </button>
           <button className="text-gray-600 hover:text-blue-600 font-medium transition-colors" onClick={() => requireLogin("Appointments", "/doctor/appointments")}>
             Appointments
           </button>
@@ -142,15 +149,16 @@ export default function DoctorHome() {
           {isLoggedIn ? (
             <>
               <button
-                className="px-5 py-2.5 bg-blue-600 text-white font-semibold rounded-lg shadow-md hover:bg-blue-700 transition-all duration-300"
+                className="text-gray-600 hover:text-blue-600 font-medium transition-colors px-4 py-2 border border-gray-200 rounded-full hover:bg-gray-50"
                 onClick={() => router.push("/doctor/profile")}
               >
                 Profile
               </button>
               <button
-                className="px-5 py-2.5 bg-red-600 text-white font-semibold rounded-lg shadow-md hover:bg-red-700 transition-all duration-300"
+                className="px-5 py-2.5 bg-red-600 text-white font-semibold rounded-lg shadow-md hover:bg-red-700 transition-all duration-300 flex items-center gap-2"
                 onClick={handleLogout}
               >
+                <LogOut size={18} />
                 Logout
               </button>
             </>
@@ -197,9 +205,9 @@ export default function DoctorHome() {
             </button>
             <button
               className="px-8 py-3 bg-white text-blue-600 font-bold rounded-full shadow-lg hover:bg-gray-100 transform hover:scale-105 transition-all duration-300 border border-gray-200"
-              onClick={() => router.push("/doctor/register")}
+              onClick={() => requireLogin("Appointments", "/doctor/appointments")}
             >
-              Register Your Practice
+              Check Appointments
             </button>
           </div>
         </div>
@@ -279,9 +287,9 @@ export default function DoctorHome() {
             <div>
               <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
               <ul className="space-y-2">
-                <li><button onClick={() => router.push("/doctor-list")} className="text-gray-400 hover:text-white transition">Find Doctors</button></li>
                 <li><button onClick={() => requireLogin("Appointments")} className="text-gray-400 hover:text-white transition">Appointments</button></li>
                 <li><button onClick={() => requireLogin("Medical History", "/doctor/medical-history")} className="text-gray-400 hover:text-white transition">Medical History</button></li>
+                <li><button onClick={() => requireLogin("Profile", "/doctor/profile")} className="text-gray-400 hover:text-white transition">Profile</button></li>
                 <li><button onClick={() => router.push("/doctor/login")} className="text-gray-400 hover:text-white transition">Login</button></li>
                 <li><button onClick={() => router.push("/doctor/register")} className="text-gray-400 hover:text-white transition">Register</button></li>
               </ul>

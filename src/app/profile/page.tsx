@@ -264,15 +264,15 @@ export default function ProfilePage() {
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
                 {/* Left Column - Profile Picture & Welcome */}
                 <div className="lg:col-span-1 flex flex-col items-center text-center">
-            <div className="relative w-32 h-32 mb-4 group">
-                        <Image src={profileImage || '/default-avatar.png'} alt="Profile" width={128} height={128} className="rounded-full object-cover border-4 border-blue-200 shadow-md"/>
+            <div className="relative w-32 h-32 mb-6 group">
+                        <Image src={profileImage || '/default-avatar.png'} alt="Profile" width={128} height={128} className="rounded-full object-cover border-4 border-blue-200 shadow-md w-full h-full"/>
                         <button onClick={triggerFileInput} className="absolute bottom-0 right-0 bg-blue-600 text-white rounded-full p-2 hover:bg-blue-700 transition-all duration-300" title="Change photo">
                             <Camera size={18} />
                         </button>
                         <input type="file" ref={fileInputRef} onChange={handleImageUpload} accept="image/*" className="hidden"/>
                     </div>
-                    <h2 className="text-2xl font-bold text-gray-800">{userData.fullName}</h2>
-                    <p className="text-gray-500">{userData.email}</p>
+                    <h2 className="text-2xl font-bold text-gray-800 mb-2">{userData.fullName}</h2>
+                    <p className="text-gray-500 mb-4">{userData.email}</p>
                     <div className="mt-6 w-full space-y-2">
                         <button onClick={() => setIsEditing(!isEditing)} className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 font-semibold rounded-lg hover:bg-gray-200 transition-all">
                             {isEditing ? <><X size={18}/> Cancel</> : <><Edit size={18}/> Edit Profile</>}

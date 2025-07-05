@@ -151,11 +151,18 @@ export default function MedicalHistoryPage() {
         >
           TreatWell
         </div>
+        <div className="hidden md:flex items-center space-x-6">
+          <button className="text-gray-600 hover:text-blue-600 font-medium transition-colors" onClick={() => router.push("/doctor/appointments")}>
+            Appointments
+          </button>
+          <button className="text-gray-600 hover:text-blue-600 font-medium transition-colors" onClick={() => router.push("/doctor/medical-history")}>
+            Medical History
+          </button>
+          <button className="text-gray-600 hover:text-blue-600 font-medium transition-colors" onClick={() => router.push("/doctor/profile")}>
+            Profile
+          </button>
+        </div>
         <div className="flex items-center gap-4">
-          <div className="flex items-center gap-2 text-gray-600">
-            <History className="w-5 h-5" />
-            <span className="font-medium">Medical History</span>
-          </div>
           <button
             onClick={handleGoBack}
             className="flex items-center gap-2 text-gray-600 hover:text-blue-600 font-medium transition-colors py-2 px-3 rounded-lg hover:bg-gray-100"

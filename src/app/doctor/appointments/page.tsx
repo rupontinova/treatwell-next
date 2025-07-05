@@ -289,6 +289,9 @@ export default function DoctorAppointmentsPage() {
           <button className="text-gray-600 hover:text-blue-600 font-medium transition-colors" onClick={() => router.push("/doctor/medical-history")}>
             Medical History
           </button>
+          <button className="text-gray-600 hover:text-blue-600 font-medium transition-colors" onClick={() => router.push("/doctor/profile")}>
+            Profile
+          </button>
         </div>
         <button
           onClick={handleGoBack}
@@ -530,9 +533,9 @@ export default function DoctorAppointmentsPage() {
             <div>
               <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
               <ul className="space-y-2">
-                <li><button onClick={() => router.push("/doctor-list")} className="text-gray-400 hover:text-white transition">Find Doctors</button></li>
                 <li><button onClick={() => router.push("/doctor/appointments")} className="text-gray-400 hover:text-white transition">Appointments</button></li>
                 <li><button onClick={() => router.push("/doctor/medical-history")} className="text-gray-400 hover:text-white transition">Medical History</button></li>
+                <li><button onClick={() => router.push("/doctor/profile")} className="text-gray-400 hover:text-white transition">Profile</button></li>
                 <li><button onClick={() => router.push("/doctor/login")} className="text-gray-400 hover:text-white transition">Login</button></li>
                 <li><button onClick={() => router.push("/doctor/register")} className="text-gray-400 hover:text-white transition">Register</button></li>
               </ul>
