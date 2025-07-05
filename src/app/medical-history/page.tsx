@@ -2,9 +2,22 @@
 
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import { Line } from 'react-chartjs-2';
+import {
+  Chart as ChartJS,
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend,
+  ChartOptions
+} from 'chart.js';
 import { IAppointment } from '@/models/Appointment';
 import { IPrescription } from '@/models/Prescription';
 import { IDoctor } from '@/models/Doctor';
+import { IHealthData } from '@/models/HealthData';
 import { 
   Calendar, 
   Clock, 
@@ -28,8 +41,20 @@ import {
   UserCheck,
   CreditCard,
   FileTextIcon,
-  ClipboardList
+  ClipboardList,
+  HeartPulse,
+  Weight
 } from 'lucide-react';
+
+ChartJS.register(
+  CategoryScale,
+  LinearScale,
+  PointElement,
+  LineElement,
+  Title,
+  Tooltip,
+  Legend
+);
 
 const AnimatedCounter = ({ value, prefix = "", suffix = "", inline = false }: { value: number, prefix?: string, suffix?: string, inline?: boolean }) => {
   const [displayValue, setDisplayValue] = useState(0);
@@ -105,6 +130,7 @@ export default function PatientMedicalHistoryPage() {
   const [appointments, setAppointments] = useState<IAppointment[]>([]);
   const [prescriptions, setPrescriptions] = useState<IPrescription[]>([]);
   const [doctors, setDoctors] = useState<{ [key: string]: IDoctor }>({});
+  const [healthData, setHealthData] = useState<IHealthData | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [patientName, setPatientName] = useState('');
@@ -185,6 +211,22 @@ export default function PatientMedicalHistoryPage() {
         });
         setDoctors(doctorMap);
 
+        // Fetch health data
+        try {
+          const healthRes = await fetch('/api/health-data', {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          });
+
+          if (healthRes.ok) {
+            const healthDataResult = await healthRes.json();
+            setHealthData(healthDataResult.data);
+          }
+        } catch (err) {
+          console.error('Error fetching health data:', err);
+        }
+
       } catch (err: any) {
         setError(err.message);
       } finally {
@@ -213,6 +255,65 @@ export default function PatientMedicalHistoryPage() {
 
   const getDoctorForAppointment = (doctorId: string) => {
     return doctors[doctorId];
+  };
+
+  // Chart configurations
+  const chartOptions: ChartOptions<'line'> = {
+    maintainAspectRatio: false,
+    responsive: true,
+    plugins: {
+      legend: {
+        position: 'top',
+      },
+    },
+    scales: {
+      x: {
+        grid: {
+          display: false,
+        }
+      },
+      y: {
+        grid: {
+          color: '#e5e7eb'
+        }
+      }
+    }
+  };
+
+  const bmiChartData = {
+    labels: healthData?.bmiHistory.map(d => new Date(d.date).toLocaleDateString()) || [],
+    datasets: [
+      {
+        label: 'BMI History',
+        data: healthData?.bmiHistory.map(d => d.value) || [],
+        borderColor: '#3b82f6',
+        backgroundColor: 'rgba(59, 130, 246, 0.1)',
+        fill: true,
+        tension: 0.3
+      }
+    ]
+  };
+  
+  const bpChartData = {
+    labels: healthData?.bpHistory.map(d => new Date(d.date).toLocaleDateString()) || [],
+    datasets: [
+      {
+        label: 'Systolic',
+        data: healthData?.bpHistory.map(d => d.systolic) || [],
+        borderColor: '#ef4444',
+        backgroundColor: 'rgba(239, 68, 68, 0.1)',
+        fill: true,
+        tension: 0.3
+      },
+      {
+        label: 'Diastolic',
+        data: healthData?.bpHistory.map(d => d.diastolic) || [],
+        borderColor: '#10b981',
+        backgroundColor: 'rgba(16, 185, 129, 0.1)',
+        fill: true,
+        tension: 0.3
+      }
+    ]
   };
 
   return (
@@ -347,6 +448,57 @@ export default function PatientMedicalHistoryPage() {
             </div>
           </div>
         </div>
+
+        {/* Health Data Section */}
+        {healthData && (healthData.bmiHistory?.length > 0 || healthData.bpHistory?.length > 0) && (
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-8">
+            {/* BMI History */}
+            {healthData.bmiHistory?.length > 0 && (
+              <div className="bg-white rounded-xl shadow-lg p-6">
+                <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                  <Weight className="w-6 h-6 mr-2 text-blue-500" />
+                  BMI History
+                </h3>
+                <div className="h-64">
+                  <Line data={bmiChartData} options={chartOptions} />
+                </div>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {healthData.bmiHistory.slice(-3).map((record, index) => (
+                    <div key={index} className="bg-blue-50 px-3 py-1 rounded-full text-sm">
+                      <span className="font-medium">{record.value}</span>
+                      <span className="text-gray-600 ml-1">
+                        ({new Date(record.date).toLocaleDateString()})
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* Blood Pressure History */}
+            {healthData.bpHistory?.length > 0 && (
+              <div className="bg-white rounded-xl shadow-lg p-6">
+                <h3 className="text-xl font-bold text-gray-800 mb-4 flex items-center">
+                  <HeartPulse className="w-6 h-6 mr-2 text-red-500" />
+                  Blood Pressure History
+                </h3>
+                <div className="h-64">
+                  <Line data={bpChartData} options={chartOptions} />
+                </div>
+                <div className="mt-4 flex flex-wrap gap-2">
+                  {healthData.bpHistory.slice(-3).map((record, index) => (
+                    <div key={index} className="bg-red-50 px-3 py-1 rounded-full text-sm">
+                      <span className="font-medium">{record.systolic}/{record.diastolic}</span>
+                      <span className="text-gray-600 ml-1">
+                        ({new Date(record.date).toLocaleDateString()})
+                      </span>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
 
         {loading && (
           <div className="text-center py-10">

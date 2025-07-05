@@ -16,7 +16,7 @@ import {
   ChartOptions
 } from 'chart.js';
 import { IHealthData } from '@/models/HealthData';
-import { HeartPulse, Ruler, Weight, Activity, BrainCircuit, ArrowLeft } from 'lucide-react';
+import { HeartPulse, Ruler, Weight, Activity, BrainCircuit, ArrowLeft, Trash2, X } from 'lucide-react';
 
 ChartJS.register(
   CategoryScale,
@@ -110,6 +110,34 @@ export default function HealthTrackerPage() {
       setHealthData(result.data);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Failed to save health data');
+    }
+  };
+
+  const deleteData = async (type: 'bmi' | 'bp', index: number) => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        router.push('/login');
+        return;
+      }
+
+      const res = await fetch('/api/health-data', {
+        method: 'DELETE',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ type, index })
+      });
+
+      const result = await res.json();
+      if (!res.ok) {
+        throw new Error(result.message || 'Failed to delete data');
+      }
+      setHealthData(result.data);
+      setError(null);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Failed to delete health data');
     }
   };
   
@@ -306,9 +334,37 @@ export default function HealthTrackerPage() {
             
             <div className="mt-6">
                 <h3 className="text-xl font-bold text-gray-800 mb-4">BMI History</h3>
-                <div className="h-64">
+                <div className="h-64 mb-4">
                   <Line data={bmiChartData} options={chartOptions} />
                 </div>
+                
+                {/* BMI Records List */}
+                {healthData?.bmiHistory && healthData.bmiHistory.length > 0 && (
+                  <div className="space-y-2 max-h-40 overflow-y-auto">
+                    <h4 className="text-sm font-semibold text-gray-700 mb-2">Recent Records:</h4>
+                    {healthData.bmiHistory.slice().reverse().map((record, reverseIndex) => {
+                      const actualIndex = healthData.bmiHistory.length - 1 - reverseIndex;
+                      return (
+                        <div key={actualIndex} className="flex items-center justify-between bg-blue-50 p-3 rounded-lg border">
+                          <div className="flex items-center gap-3">
+                            <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                            <div>
+                              <span className="font-medium text-gray-900">BMI: {record.value}</span>
+                              <p className="text-xs text-gray-600">{new Date(record.date).toLocaleDateString()} at {new Date(record.date).toLocaleTimeString()}</p>
+                            </div>
+                          </div>
+                          <button
+                            onClick={() => deleteData('bmi', actualIndex)}
+                            className="text-red-500 hover:text-red-700 hover:bg-red-100 p-2 rounded-full transition-colors"
+                            title="Delete this BMI record"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
           </div>
 
@@ -341,9 +397,37 @@ export default function HealthTrackerPage() {
 
              <div className="mt-6">
                 <h3 className="text-xl font-bold text-gray-800 mb-4">Blood Pressure History</h3>
-                <div className="h-64">
+                <div className="h-64 mb-4">
                   <Line data={bpChartData} options={chartOptions} />
                 </div>
+                
+                {/* BP Records List */}
+                {healthData?.bpHistory && healthData.bpHistory.length > 0 && (
+                  <div className="space-y-2 max-h-40 overflow-y-auto">
+                    <h4 className="text-sm font-semibold text-gray-700 mb-2">Recent Records:</h4>
+                    {healthData.bpHistory.slice().reverse().map((record, reverseIndex) => {
+                      const actualIndex = healthData.bpHistory.length - 1 - reverseIndex;
+                      return (
+                        <div key={actualIndex} className="flex items-center justify-between bg-red-50 p-3 rounded-lg border">
+                          <div className="flex items-center gap-3">
+                            <div className="w-2 h-2 bg-red-500 rounded-full"></div>
+                            <div>
+                              <span className="font-medium text-gray-900">BP: {record.systolic}/{record.diastolic} mmHg</span>
+                              <p className="text-xs text-gray-600">{new Date(record.date).toLocaleDateString()} at {new Date(record.date).toLocaleTimeString()}</p>
+                            </div>
+                          </div>
+                          <button
+                            onClick={() => deleteData('bp', actualIndex)}
+                            className="text-red-500 hover:text-red-700 hover:bg-red-100 p-2 rounded-full transition-colors"
+                            title="Delete this BP record"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
               </div>
           </div>
         </div>

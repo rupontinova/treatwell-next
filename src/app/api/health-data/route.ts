@@ -24,10 +24,16 @@ export async function GET(req: NextRequest) {
   await dbConnect();
 
   try {
-    const patientId = getPatientId(req);
-    if (!patientId) {
+    const url = new URL(req.url);
+    const requestedPatientId = url.searchParams.get('patientId');
+    
+    const currentUserId = getPatientId(req);
+    if (!currentUserId) {
       return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 });
     }
+
+    // Use requested patientId if provided (for doctors accessing patient data), otherwise use current user ID
+    const patientId = requestedPatientId || currentUserId;
 
     let healthData = await HealthData.findOne({ patientId });
 
@@ -69,6 +75,39 @@ export async function POST(req: NextRequest) {
     await healthData.save();
 
     return NextResponse.json({ success: true, data: healthData });
+  } catch (error: any) {
+    return NextResponse.json({ success: false, message: 'Internal server error' }, { status: 500 });
+  }
+}
+
+export async function DELETE(req: NextRequest) {
+  await dbConnect();
+
+  try {
+    const patientId = getPatientId(req);
+    if (!patientId) {
+      return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 });
+    }
+
+    const body = await req.json();
+    const { type, index } = body;
+
+    let healthData = await HealthData.findOne({ patientId });
+    if (!healthData) {
+      return NextResponse.json({ success: false, message: 'Health data not found' }, { status: 404 });
+    }
+
+    if (type === 'bmi' && typeof index === 'number' && index >= 0 && index < healthData.bmiHistory.length) {
+      healthData.bmiHistory.splice(index, 1);
+    } else if (type === 'bp' && typeof index === 'number' && index >= 0 && index < healthData.bpHistory.length) {
+      healthData.bpHistory.splice(index, 1);
+    } else {
+      return NextResponse.json({ success: false, message: 'Invalid delete request' }, { status: 400 });
+    }
+
+    await healthData.save();
+
+    return NextResponse.json({ success: true, data: healthData, message: 'Data deleted successfully' });
   } catch (error: any) {
     return NextResponse.json({ success: false, message: 'Internal server error' }, { status: 500 });
   }

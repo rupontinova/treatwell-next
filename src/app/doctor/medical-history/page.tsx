@@ -524,6 +524,8 @@ export default function MedicalHistoryPage() {
                                 </div>
                               </div>
                             )}
+
+
                           </div>
                         )}
                       </div>
