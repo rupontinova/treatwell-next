@@ -5,10 +5,10 @@ import { Search, Stethoscope, Calendar, HeartPulse, User, Star, ShieldCheck, Bri
 import { Notification } from '@/components/Notification';
 
 const LoginModal = ({ feature, onClose, onConfirm }: { feature: string, onClose: () => void, onConfirm: () => void }) => (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50">
         <div className="bg-white rounded-lg p-8 shadow-2xl max-w-sm w-full transform transition-all duration-300 scale-95 hover:scale-100">
             <h2 className="text-2xl font-bold text-gray-800 mb-4">Login Required</h2>
-            <p className="text-gray-600 mb-6">📢 Please log in to access this feature.</p>
+            <p className="text-gray-600 mb-6">Please log in to access this feature.</p>
             <div className="flex justify-end gap-4">
                 <button onClick={onClose} className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition">
                     Cancel

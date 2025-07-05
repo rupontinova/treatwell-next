@@ -7,7 +7,7 @@ import { IDoctor } from "@/models/Doctor";
 import { IReview } from "@/models/Review";
 
 const LoginModal = ({ feature, onClose, onConfirm }: { feature: string, onClose: () => void, onConfirm: () => void }) => (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div className="fixed inset-0 backdrop-blur-sm flex items-center justify-center z-50">
         <div className="bg-white rounded-lg p-8 shadow-2xl max-w-sm w-full transform transition-all duration-300 scale-95 hover:scale-100">
             <h2 className="text-2xl font-bold text-gray-800 mb-4">Login Required</h2>
             <p className="text-gray-600 mb-6">Please log in or create an account to access the "{feature}" feature.</p>
@@ -818,24 +818,24 @@ export default function Home() {
                 ) : (
                   // Fallback content if no reviews yet
                   <>
-                    <TestimonialCard 
-                        quote="TreatWell made finding a specialist so easy. The appointment booking was seamless and the reminders were a lifesaver!"
-                        name="Sarah L."
-                        role="Patient"
+                <TestimonialCard 
+                    quote="TreatWell made finding a specialist so easy. The appointment booking was seamless and the reminders were a lifesaver!"
+                    name="Sarah L."
+                    role="Patient"
                         rating={5}
-                    />
-                    <TestimonialCard 
-                        quote="The Health Tracker is fantastic. I can finally see all my health data in one place, which has been incredibly helpful for managing my condition."
-                        name="Michael B."
-                        role="Patient"
+                />
+                <TestimonialCard 
+                    quote="The Health Tracker is fantastic. I can finally see all my health data in one place, which has been incredibly helpful for managing my condition."
+                    name="Michael B."
+                    role="Patient"
                         rating={5}
-                    />
-                    <TestimonialCard 
-                        quote="A truly professional and easy-to-use platform. It has completely changed how I manage my family's healthcare."
-                        name="Emily R."
-                        role="Patient"
+                />
+                <TestimonialCard 
+                    quote="A truly professional and easy-to-use platform. It has completely changed how I manage my family's healthcare."
+                    name="Emily R."
+                    role="Patient"
                         rating={5}
-                    />
+                />
                   </>
                 )}
             </div>

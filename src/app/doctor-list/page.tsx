@@ -4,7 +4,7 @@ import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { IDoctor } from '@/models/Doctor';
-import { Stethoscope, User, Search, ArrowUp, ArrowDown } from 'lucide-react';
+import { Stethoscope, User, Search, ArrowUp, ArrowDown, ArrowLeft } from 'lucide-react';
 
 // Removed hard-coded specialities - now loaded dynamically
 
@@ -21,6 +21,14 @@ function DoctorListComponent() {
     key: string;
     direction: 'asc' | 'desc';
   }>({ key: 'sl', direction: 'asc' });
+
+  const handleGoBack = () => {
+    if (window.history.length > 1) {
+      router.back();
+    } else {
+      router.push('/');
+    }
+  };
 
   useEffect(() => {
     const fetchDoctors = async () => {
@@ -98,12 +106,14 @@ function DoctorListComponent() {
         >
           TreatWell
         </div>
-        <Link
-          href="/"
-          className="text-gray-600 hover:text-blue-600 font-medium transition-colors"
+        <button
+          onClick={handleGoBack}
+          className="flex items-center gap-2 text-gray-600 hover:text-blue-600 font-medium transition-colors py-2 px-3 rounded-lg hover:bg-gray-100"
+          title="Go back to previous page"
         >
-          Back to Home
-        </Link>
+          <ArrowLeft className="w-5 h-5" />
+          <span className="hidden sm:inline">Back</span>
+        </button>
       </nav>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">

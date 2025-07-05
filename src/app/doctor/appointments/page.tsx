@@ -4,7 +4,8 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { IAppointment } from '@/models/Appointment';
-import { Calendar, Clock, User, MapPin, Stethoscope, Hash, AlertTriangle, CheckCircle, XCircle, Briefcase, GraduationCap, Info, ChevronDown, Phone } from 'lucide-react';
+import { Calendar, Clock, User, MapPin, Stethoscope, Hash, AlertTriangle, CheckCircle, XCircle, Briefcase, GraduationCap, Info, ChevronDown, Phone, Video, ArrowLeft } from 'lucide-react';
+import MeetingModal from '@/components/MeetingModal';
 
 export default function DoctorAppointmentsPage() {
   const router = useRouter();
@@ -14,6 +15,16 @@ export default function DoctorAppointmentsPage() {
   const [successMessage, setSuccessMessage] = useState('');
   const [doctorName, setDoctorName] = useState('');
   const [expandedCard, setExpandedCard] = useState<string | null>(null);
+  const [showMeetingModal, setShowMeetingModal] = useState(false);
+  const [selectedAppointment, setSelectedAppointment] = useState<IAppointment | null>(null);
+
+  const handleGoBack = () => {
+    if (window.history.length > 1) {
+      router.back();
+    } else {
+      router.push('/doctor');
+    }
+  };
 
   useEffect(() => {
     const fetchAppointments = async () => {
@@ -55,7 +66,13 @@ export default function DoctorAppointmentsPage() {
           setDoctorName(welcomeMessage.replace('Welcome, ', ''));
         }
 
-        setAppointments(data.data);
+        // Sort appointments by creation date (newest first) using ObjectId timestamp
+        const sortedAppointments = data.data.sort((a: any, b: any) => {
+          const timeA = parseInt(a._id.toString().substring(0, 8), 16);
+          const timeB = parseInt(b._id.toString().substring(0, 8), 16);
+          return timeB - timeA;
+        });
+        setAppointments(sortedAppointments);
         setError(''); // Clear any previous errors
         
         // Check if we should show a success message (coming back from prescription)
@@ -111,6 +128,53 @@ export default function DoctorAppointmentsPage() {
     } catch (err: any) {
       setError(err.message);
     }
+  };
+
+  const handleSendMeetingLink = async (appointmentId: string, meetingTime: string, meetingLink: string) => {
+    try {
+      const res = await fetch('/api/appointments/meeting-link', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          appointmentId,
+          meetingTime,
+          meetingLink
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        throw new Error(data.message || 'Failed to send meeting link');
+      }
+
+      // Update the appointments list to reflect meeting scheduled
+      setAppointments(appointments.map(apt => 
+        apt._id.toString() === appointmentId 
+          ? { ...apt, meetingScheduled: true, meetingTime, meetingLink, meetingEmailSent: data.success } as IAppointment
+          : apt
+      ));
+
+      setSuccessMessage('Meeting link sent successfully to the patient!');
+      setTimeout(() => {
+        setSuccessMessage('');
+      }, 3000);
+    } catch (err: any) {
+      setError(err.message);
+      throw err;
+    }
+  };
+
+  const openMeetingModal = (appointment: IAppointment) => {
+    setSelectedAppointment(appointment);
+    setShowMeetingModal(true);
+  };
+
+  const closeMeetingModal = () => {
+    setShowMeetingModal(false);
+    setSelectedAppointment(null);
   };
 
   const StatusBadge = ({ status }: { status: string }) => {
@@ -218,12 +282,14 @@ export default function DoctorAppointmentsPage() {
         >
           TreatWell
         </div>
-        <Link
-          href="/doctor"
-          className="text-gray-600 hover:text-blue-600 font-medium transition-colors"
+        <button
+          onClick={handleGoBack}
+          className="flex items-center gap-2 text-gray-600 hover:text-blue-600 font-medium transition-colors py-2 px-3 rounded-lg hover:bg-gray-100"
+          title="Go back to previous page"
         >
-          Back to Dashboard
-        </Link>
+          <ArrowLeft className="w-5 h-5" />
+          <span className="hidden sm:inline">Back</span>
+        </button>
       </nav>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -382,6 +448,34 @@ export default function DoctorAppointmentsPage() {
                                                     </svg>
                                                     View Payment
                                                 </button>
+                                                
+                                                {/* Meeting Link Button */}
+                                                {appointment.meetingScheduled ? (
+                                                    <div className="w-full px-4 py-3 bg-purple-100 text-purple-800 text-sm font-semibold rounded-lg border-2 border-purple-200 flex items-center justify-center gap-2">
+                                                        <Video className="w-4 h-4" />
+                                                        Meeting has been scheduled
+                                                    </div>
+                                                ) : (
+                                                    <button
+                                                        onClick={(e) => {
+                                                            e.stopPropagation();
+                                                            if (appointment.paymentStatus !== 'paid') {
+                                                                alert('Patient must complete payment before meeting link can be sent. Please ask the patient to pay first.');
+                                                                return;
+                                                            }
+                                                            openMeetingModal(appointment);
+                                                        }}
+                                                        disabled={appointment.paymentStatus !== 'paid'}
+                                                        className={`w-full px-4 py-3 text-white text-sm font-semibold rounded-lg shadow-md transition-all duration-300 flex items-center justify-center gap-2 ${
+                                                            appointment.paymentStatus === 'paid'
+                                                                ? 'bg-purple-600 hover:bg-purple-700 cursor-pointer'
+                                                                : 'bg-gray-400 cursor-not-allowed'
+                                                        }`}
+                                                    >
+                                                        <Video className="w-4 h-4" />
+                                                        {appointment.paymentStatus === 'paid' ? 'Send Meeting Link' : 'Payment Required'}
+                                                    </button>
+                                                )}
                                             </div>
                                         )}
                                     </div>
@@ -401,6 +495,19 @@ export default function DoctorAppointmentsPage() {
             </>
         )}
       </main>
+      
+      {/* Meeting Modal */}
+      {selectedAppointment && (
+        <MeetingModal
+          isOpen={showMeetingModal}
+          onClose={closeMeetingModal}
+          appointmentId={selectedAppointment._id.toString()}
+          patientName={selectedAppointment.patientName}
+          appointmentDate={selectedAppointment.appointmentDate}
+          appointmentTime={selectedAppointment.appointmentTime}
+          onSendMeetingLink={handleSendMeetingLink}
+        />
+      )}
     </div>
   );
 } 

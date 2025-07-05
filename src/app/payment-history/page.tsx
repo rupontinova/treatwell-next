@@ -45,7 +45,14 @@ export default function PaymentHistoryPage() {
         const paidAppointments = data.data.filter((apt: IAppointment) => 
           apt.status.toLowerCase() === 'done'
         );
-        setAppointments(paidAppointments);
+        
+        // Sort payments by creation date (newest first) using ObjectId timestamp
+        const sortedPayments = paidAppointments.sort((a: any, b: any) => {
+          const timeA = parseInt(a._id.toString().substring(0, 8), 16);
+          const timeB = parseInt(b._id.toString().substring(0, 8), 16);
+          return timeB - timeA;
+        });
+        setAppointments(sortedPayments);
       } catch (err: any) {
         setError(err.message);
       } finally {

@@ -276,15 +276,15 @@ export default function ProfilePage() {
                     <div className="mt-6 w-full space-y-2">
                         <button onClick={() => setIsEditing(!isEditing)} className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 font-semibold rounded-lg hover:bg-gray-200 transition-all">
                             {isEditing ? <><X size={18}/> Cancel</> : <><Edit size={18}/> Edit Profile</>}
-                        </button>
+                    </button>
                         
                         {/* Show Change Password only for non-Google users */}
                         {!isGoogleUser ? (
-                            <Link href="/change-password" legacyBehavior>
-                                <a className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 font-semibold rounded-lg hover:bg-gray-200 transition-all">
-                                    <Key size={18}/> Change Password
-                                </a>
-                            </Link>
+                         <Link href="/change-password" legacyBehavior>
+                           <a className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 font-semibold rounded-lg hover:bg-gray-200 transition-all">
+                                <Key size={18}/> Change Password
+                           </a>
+                        </Link>
                         ) : (
                             <div className="w-full p-3 bg-blue-50 border border-blue-200 rounded-lg">
                                 <div className="flex items-center gap-2 text-blue-600 mb-1">

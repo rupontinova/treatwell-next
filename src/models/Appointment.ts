@@ -19,6 +19,10 @@ export interface IAppointment extends Document {
   paymentStatus: 'paid' | 'unpaid';
   paymentAmount: number;
   paymentDate?: Date;
+  meetingLink?: string;
+  meetingTime?: string;
+  meetingScheduled?: boolean;
+  meetingEmailSent?: boolean;
 }
 
 const AppointmentSchema: Schema<IAppointment> = new mongoose.Schema({
@@ -39,6 +43,10 @@ const AppointmentSchema: Schema<IAppointment> = new mongoose.Schema({
     paymentStatus: { type: String, enum: ['paid', 'unpaid'], default: 'unpaid' },
     paymentAmount: { type: Number, default: 0 }, // Default consultation fee
     paymentDate: { type: Date },
+    meetingLink: { type: String, default: '' },
+    meetingTime: { type: String, default: '' },
+    meetingScheduled: { type: Boolean, default: false },
+    meetingEmailSent: { type: Boolean, default: false },
 });
 
 const AppointmentModel: Model<IAppointment> = mongoose.models.Appointment || mongoose.model<IAppointment>('Appointment', AppointmentSchema);

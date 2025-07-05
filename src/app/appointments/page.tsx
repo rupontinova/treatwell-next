@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { IAppointment } from '@/models/Appointment';
-import { Calendar, Clock, User, MapPin, Stethoscope, Hash, AlertTriangle, CheckCircle, XCircle, Briefcase, GraduationCap, Info, ChevronDown } from 'lucide-react';
+import { Calendar, Clock, User, MapPin, Stethoscope, Hash, AlertTriangle, CheckCircle, XCircle, Briefcase, GraduationCap, Info, ChevronDown, Video, Mail, ArrowLeft } from 'lucide-react';
 
 export default function AppointmentsPage() {
   const router = useRouter();
@@ -14,6 +14,14 @@ export default function AppointmentsPage() {
   const [successMessage, setSuccessMessage] = useState('');
   const [patientName, setPatientName] = useState('');
   const [expandedCard, setExpandedCard] = useState<string | null>(null);
+
+  const handleGoBack = () => {
+    if (window.history.length > 1) {
+      router.back();
+    } else {
+      router.push('/');
+    }
+  };
 
   useEffect(() => {
     const fetchAppointments = async () => {
@@ -41,7 +49,13 @@ export default function AppointmentsPage() {
         if (!res.ok) {
           throw new Error(data.message || 'Failed to fetch appointments');
         }
-        setAppointments(data.data);
+        // Sort appointments by creation date (newest first) using ObjectId timestamp
+        const sortedAppointments = data.data.sort((a: any, b: any) => {
+          const timeA = parseInt(a._id.toString().substring(0, 8), 16);
+          const timeB = parseInt(b._id.toString().substring(0, 8), 16);
+          return timeB - timeA;
+        });
+        setAppointments(sortedAppointments);
       } catch (err: any) {
         setError(err.message);
       } finally {
@@ -181,12 +195,14 @@ export default function AppointmentsPage() {
         >
           TreatWell
         </div>
-        <Link
-          href="/"
-          className="text-gray-600 hover:text-blue-600 font-medium transition-colors"
+        <button
+          onClick={handleGoBack}
+          className="flex items-center gap-2 text-gray-600 hover:text-blue-600 font-medium transition-colors py-2 px-3 rounded-lg hover:bg-gray-100"
+          title="Go back to previous page"
         >
-          Back to Home
-        </Link>
+          <ArrowLeft className="w-5 h-5" />
+          <span className="hidden sm:inline">Back</span>
+        </button>
       </nav>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -331,6 +347,24 @@ export default function AppointmentsPage() {
                                                     </svg>
                                                     Make Payment
                                                 </button>
+                                                
+                                                {/* Meeting Status */}
+                                                {appointment.meetingScheduled ? (
+                                                    <div className="w-full px-4 py-3 bg-green-100 text-green-800 text-sm font-semibold rounded-lg border-2 border-green-200 text-center">
+                                                        <div className="flex items-center justify-center gap-2 mb-2">
+                                                            <Video className="w-4 h-4" />
+                                                            Meeting has been scheduled
+                                                        </div>
+                                                        <div className="flex items-center justify-center gap-2 text-xs">
+                                                            Check your email for meeting link
+                                                        </div>
+                                                    </div>
+                                                ) : (
+                                                    <div className="w-full px-4 py-3 bg-gray-100 text-gray-600 text-sm font-semibold rounded-lg border-2 border-gray-200 flex items-center justify-center gap-2">
+                                                        <Video className="w-4 h-4" />
+                                                        Meeting is not scheduled yet
+                                                    </div>
+                                                )}
                                             </div>
                                         )}
                                     </div>
