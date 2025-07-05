@@ -282,6 +282,14 @@ export default function DoctorAppointmentsPage() {
         >
           TreatWell
         </div>
+        <div className="hidden md:flex items-center space-x-6">
+          <button className="text-gray-600 hover:text-blue-600 font-medium transition-colors" onClick={() => router.push("/doctor/appointments")}>
+            Appointments
+          </button>
+          <button className="text-gray-600 hover:text-blue-600 font-medium transition-colors" onClick={() => router.push("/doctor/medical-history")}>
+            Medical History
+          </button>
+        </div>
         <button
           onClick={handleGoBack}
           className="flex items-center gap-2 text-gray-600 hover:text-blue-600 font-medium transition-colors py-2 px-3 rounded-lg hover:bg-gray-100"
@@ -508,6 +516,53 @@ export default function DoctorAppointmentsPage() {
           onSendMeetingLink={handleSendMeetingLink}
         />
       )}
+
+      <footer className="bg-gray-800 text-white mt-12">
+        <div className="max-w-6xl mx-auto px-6 py-16">
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8">
+            <div className="col-span-2 lg:col-span-2">
+              <h3 className="text-2xl font-bold text-white mb-4">TreatWell for Doctors</h3>
+              <p className="text-gray-400 max-w-sm">
+                The all-in-one platform to enhance your practice, connect with patients, and deliver outstanding care.
+              </p>
+            </div>
+            
+            <div>
+              <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
+              <ul className="space-y-2">
+                <li><button onClick={() => router.push("/doctor-list")} className="text-gray-400 hover:text-white transition">Find Doctors</button></li>
+                <li><button onClick={() => router.push("/doctor/appointments")} className="text-gray-400 hover:text-white transition">Appointments</button></li>
+                <li><button onClick={() => router.push("/doctor/medical-history")} className="text-gray-400 hover:text-white transition">Medical History</button></li>
+                <li><button onClick={() => router.push("/doctor/login")} className="text-gray-400 hover:text-white transition">Login</button></li>
+                <li><button onClick={() => router.push("/doctor/register")} className="text-gray-400 hover:text-white transition">Register</button></li>
+              </ul>
+            </div>
+
+            <div>
+              <h3 className="text-lg font-semibold mb-4">Contact</h3>
+              <ul className="space-y-2 text-gray-400">
+                <li><p>Ruponti Muin Nova</p></li>
+                <li><p>Jawad Anzum Fahim</p></li>
+                <li className="pt-2"><a href="mailto:support@treatwell.com" className="hover:text-white transition">support@treatwell.com</a></li>
+              </ul>
+            </div>
+             <div>
+              <h3 className="text-lg font-semibold mb-4">Feedback</h3>
+               <p className="text-gray-400 mb-2 text-sm">Help us improve our services.</p>
+              <button 
+                onClick={() => router.push("/feedback")}
+                className="text-blue-400 hover:text-blue-300 transition font-semibold"
+              >
+                Send Feedback
+              </button>
+            </div>
+          </div>
+
+          <div className="border-t border-gray-700 mt-10 pt-8 text-center text-gray-500">
+            <p>&copy; {new Date().getFullYear()} TreatWell. All rights reserved.</p>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 } 

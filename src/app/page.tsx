@@ -484,6 +484,9 @@ export default function Home() {
           <button className="text-gray-600 hover:text-blue-600 font-medium transition-colors" onClick={() => requireLogin("Appointments", "/appointments")}>
             Appointments
           </button>
+          <button className="text-gray-600 hover:text-blue-600 font-medium transition-colors" onClick={() => requireLogin("Medical History", "/medical-history")}>
+            Medical History
+          </button>
           <button className="text-gray-600 hover:text-blue-600 font-medium transition-colors" onClick={() => requireLogin("Health Tracker", "/health-tracker")}>
             Health Tracker
           </button>
@@ -857,6 +860,7 @@ export default function Home() {
               <ul className="space-y-2">
                 <li><button onClick={() => requireLogin("Find a Doctor", "/doctor-list")} className="text-gray-400 hover:text-white transition">Find a Doctor</button></li>
                 <li><button onClick={() => requireLogin("Appointments", "/appointments")} className="text-gray-400 hover:text-white transition">Appointments</button></li>
+                <li><button onClick={() => requireLogin("Medical History", "/medical-history")} className="text-gray-400 hover:text-white transition">Medical History</button></li>
                 <li><button onClick={() => requireLogin("Health Tracker", "/health-tracker")} className="text-gray-400 hover:text-white transition">Health Tracker</button></li>
                 <li><button onClick={() => router.push("/login")} className="text-gray-400 hover:text-white transition">Login</button></li>
               </ul>
