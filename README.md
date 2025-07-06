@@ -266,22 +266,21 @@ Follow these steps to set up TreatWell locally:
    # Database
    MONGODB_URI=your_mongodb_connection_string
    
-   # Authentication
-   NEXTAUTH_URL=http://localhost:3000
-   NEXTAUTH_SECRET=your_nextauth_secret
-   
    # JWT
    JWT_SECRET=your_jwt_secret
+   JWT_EXPIRE=30d
    
    # Email Configuration
-   EMAIL_HOST=your_email_host
-   EMAIL_PORT=587
    EMAIL_USER=your_email_user
    EMAIL_PASS=your_email_password
    
-   # Google APIs (optional)
-   GOOGLE_CLIENT_ID=your_google_client_id
-   GOOGLE_CLIENT_SECRET=your_google_client_secret
+   # Google APIs
+   NEXT_PUBLIC_GOOGLE_CLIENT_ID= public_id
+   GOOGLE_CLIENT_ID=client_id
+   GOOGLE_CLIENT_SECRET=client_id_secret
+   CLIENT_URL=localhost_url
+
+   
    ```
 
 4. **Database Setup**
