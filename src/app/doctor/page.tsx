@@ -411,35 +411,6 @@ export default function DoctorHome() {
             </div>
         </div>
       </section>
-      
-      <section className="py-24 bg-blue-50/50">
-        <div className="max-w-6xl mx-auto px-6">
-            <div className="text-center mb-16">
-                <h2 className="text-3xl md:text-4xl font-bold text-gray-900 mb-4">What Our Doctors Say</h2>
-                <p className="text-lg text-gray-500 max-w-3xl mx-auto">Hear from healthcare professionals who have transformed their practice with TreatWell.</p>
-            </div>
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-                <TestimonialCard 
-                    quote="TreatWell has been a game-changer for my private practice. I can manage appointments and patient records so efficiently."
-                    name="Dr. Evelyn Reed"
-                    role="Cardiologist"
-                    rating={5}
-                />
-                <TestimonialCard 
-                    quote="The platform is intuitive and has significantly reduced my administrative workload, allowing me to focus more on patient care."
-                    name="Dr. Marcus Thorne"
-                    role="Neurologist"
-                    rating={5}
-                />
-                <TestimonialCard 
-                    quote="A fantastic tool for reaching new patients and managing my schedule. I highly recommend it to my colleagues."
-                    name="Dr. Elena Vasquez"
-                    role="Dermatologist"
-                    rating={5}
-                />
-            </div>
-        </div>
-      </section>
 
       <section ref={reviewsRef} className="py-24 bg-blue-50/50">
         <div className="max-w-6xl mx-auto px-6">
