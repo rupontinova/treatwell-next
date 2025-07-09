@@ -37,7 +37,7 @@ const DoctorSchema: Schema<IDoctor> = new mongoose.Schema({
   about: { type: String, required: true },
   phone: { type: String, required: true },
   bmdcNumber: { type: String, required: true, unique: true },
-  profilePicture: { type: String, default: '/default-doctor.jpg' },
+  profilePicture: { type: String, default: '/default-avatar.png' },
   otpCode: { type: String, default: null },
   otpExpire: { type: Date, default: null },
   createdAt: { type: Date, default: Date.now }

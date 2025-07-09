@@ -337,6 +337,11 @@ export default function AppointmentsPage() {
                                                     }`}>
                                                         {(appointment.paymentStatus === 'paid') ? '💳 Paid' : '⏳ Payment Pending'}
                                                     </div>
+                                                    {appointment.paymentStatus !== 'paid' && (
+                                                        <p className="text-xs text-orange-600 font-medium mt-2 bg-orange-50 px-3 py-2 rounded-lg border border-orange-200">
+                                                            You have to pay first to unlock the services
+                                                        </p>
+                                                    )}
                                                 </div>
 
                                                 <button

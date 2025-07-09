@@ -52,7 +52,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    let profilePicturePath = '/default-doctor.jpg'; // Default image
+    let profilePicturePath = '/default-avatar.png'; // Default image
     if (file) {
       const bytes = await file.arrayBuffer();
       const buffer = Buffer.from(bytes);

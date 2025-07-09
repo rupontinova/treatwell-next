@@ -741,7 +741,7 @@ export default function Home() {
                       )}
                   </div>
                   <div className="p-6">
-                      <h3 className="text-xl font-bold text-gray-800 mb-1">{doctor.name}</h3>
+                      <h3 className="text-xl font-bold text-gray-800 mb-1">Dr. {doctor.name}</h3>
                       <p className="text-blue-600 font-medium mb-4">{doctor.speciality}</p>
                       <p className="text-gray-600 text-sm mb-4">
                         {doctor.about || `A dedicated ${doctor.speciality.toLowerCase()} specialist.`}

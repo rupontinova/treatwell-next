@@ -306,7 +306,7 @@ export default function DoctorAppointmentsPage() {
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
         <div className="text-center mb-10">
             <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-2">Your Appointments</h1>
-            {doctorName && <p className="text-lg text-gray-500">Hello, Dr. {doctorName}! Here are your scheduled appointments.</p>}
+            {doctorName && <p className="text-lg text-gray-500">Hello, {doctorName}! Here are your scheduled appointments.</p>}
 
         </div>
 

@@ -1,11 +1,11 @@
 "use client";
-import React, { useState } from "react";
+import React, { useState, Suspense } from "react";
 import { motion } from "framer-motion";
 import { Mail, ArrowLeft, Key, Lock, Eye, EyeOff, CheckCircle } from "lucide-react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
+import { useRouter, useSearchParams } from "next/navigation";
 
-export default function ForgotPasswordPage() {
+function ForgotPasswordComponent() {
   const [step, setStep] = useState<'email' | 'otp' | 'password' | 'success'>('email');
   const [email, setEmail] = useState("");
   const [otp, setOtp] = useState("");
@@ -18,6 +18,8 @@ export default function ForgotPasswordPage() {
   const [loading, setLoading] = useState(false);
   
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const fromProfile = searchParams.get('from') === 'profile';
 
   const handleEmailSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -161,14 +163,27 @@ export default function ForgotPasswordPage() {
             Your password has been successfully updated. You can now login with your new password.
           </p>
           
-          <motion.button
-            whileHover={{ scale: 1.02 }}
-            whileTap={{ scale: 0.98 }}
-            onClick={() => router.push('/login')}
-            className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium"
-          >
-            Go to Login
-          </motion.button>
+          <div className="space-y-3">
+            <motion.button
+              whileHover={{ scale: 1.02 }}
+              whileTap={{ scale: 0.98 }}
+              onClick={() => router.push('/login')}
+              className="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition-colors font-medium"
+            >
+              Go to Login
+            </motion.button>
+            
+            {fromProfile && (
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => router.push('/profile')}
+                className="w-full bg-gray-100 text-gray-700 py-3 rounded-lg hover:bg-gray-200 transition-colors font-medium"
+              >
+                Back to Profile
+              </motion.button>
+            )}
+          </div>
         </motion.div>
       </div>
     );
@@ -229,7 +244,7 @@ export default function ForgotPasswordPage() {
                 </div>
                 <input
                   type={showPassword ? "text" : "password"}
-                  className="w-full pl-10 pr-16 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                  className="w-full pl-10 pr-16 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition text-gray-900 font-medium"
                   placeholder="Enter new password"
                   value={newPassword}
                   onChange={e => setNewPassword(e.target.value)}
@@ -260,7 +275,7 @@ export default function ForgotPasswordPage() {
                 </div>
                 <input
                   type={showConfirmPassword ? "text" : "password"}
-                  className="w-full pl-10 pr-16 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                  className="w-full pl-10 pr-16 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition text-gray-900 font-medium"
                   placeholder="Confirm new password"
                   value={confirmPassword}
                   onChange={e => setConfirmPassword(e.target.value)}
@@ -387,7 +402,7 @@ export default function ForgotPasswordPage() {
                 </div>
                 <input
                   type="text"
-                  className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition text-center text-lg font-mono tracking-widest"
+                  className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition text-center text-lg font-mono tracking-widest text-gray-900 font-medium"
                   placeholder="Enter 4-digit OTP"
                   value={otp}
                   onChange={e => setOtp(e.target.value.replace(/\D/g, '').slice(0, 4))}
@@ -485,7 +500,7 @@ export default function ForgotPasswordPage() {
               </div>
               <input
                 type="email"
-                className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition"
+                className="w-full pl-10 pr-3 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition text-gray-900 font-medium"
                 placeholder="Enter your email address"
                 value={email}
                 onChange={e => setEmail(e.target.value)}
@@ -512,16 +527,34 @@ export default function ForgotPasswordPage() {
           </motion.button>
 
           <div className="text-center">
-            <Link
-              href="/login" 
-              className="inline-flex items-center text-sm text-blue-600 hover:text-blue-500 transition-colors"
-            >
-              <ArrowLeft className="h-4 w-4 mr-1" />
-              Back to Login
-            </Link>
+            {fromProfile ? (
+              <button
+                onClick={() => router.push('/profile')}
+                className="inline-flex items-center text-sm text-blue-600 hover:text-blue-500 transition-colors"
+              >
+                <ArrowLeft className="h-4 w-4 mr-1" />
+                Back to Profile
+              </button>
+            ) : (
+              <Link
+                href="/login" 
+                className="inline-flex items-center text-sm text-blue-600 hover:text-blue-500 transition-colors"
+              >
+                <ArrowLeft className="h-4 w-4 mr-1" />
+                Back to Login
+              </Link>
+            )}
           </div>
         </form>
       </motion.div>
     </div>
+  );
+}
+
+export default function ForgotPasswordPage() {
+  return (
+    <Suspense fallback={<div>Loading...</div>}>
+      <ForgotPasswordComponent />
+    </Suspense>
   );
 } 

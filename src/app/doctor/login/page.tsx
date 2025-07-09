@@ -52,7 +52,7 @@ export default function DoctorLoginPage() {
       if (!res.ok) throw new Error(data.message || 'Login failed');
       
       localStorage.setItem('token', data.token);
-      localStorage.setItem('welcomeMessage', `Welcome, ${data.doctor.name}`);
+      localStorage.setItem('welcomeMessage', `Welcome, Dr. ${data.doctor.name}`);
       router.push('/doctor');
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Login failed. Please try again.');

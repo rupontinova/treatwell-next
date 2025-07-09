@@ -280,7 +280,7 @@ export default function ProfilePage() {
                         
                         {/* Show Change Password only for non-Google users */}
                         {!isGoogleUser ? (
-                         <Link href="/change-password" legacyBehavior>
+                         <Link href="/forgot-password?from=profile" legacyBehavior>
                            <a className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 font-semibold rounded-lg hover:bg-gray-200 transition-all">
                                 <Key size={18}/> Change Password
                            </a>

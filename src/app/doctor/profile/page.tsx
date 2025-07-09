@@ -161,7 +161,7 @@ export default function DoctorProfilePage() {
 
     try {
         const token = localStorage.getItem('token');
-        const res = await fetch('/api/auth/profile/upload', {
+        const res = await fetch('/api/auth/doctor/profile/upload', {
             method: 'POST',
             headers: { 'Authorization': `Bearer ${token}` },
             body,

@@ -248,7 +248,7 @@ export default function MedicalHistoryPage() {
           <h1 className="text-4xl md:text-5xl font-extrabold text-gray-900 mb-2">Medical History</h1>
           {doctorName && (
             <p className="text-lg text-gray-500">
-              Dr. {doctorName}, here's your consultation history and patient records
+              {doctorName}, here's your consultation history and patient records
             </p>
           )}
         </div>

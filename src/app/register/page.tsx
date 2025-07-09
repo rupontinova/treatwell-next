@@ -71,14 +71,10 @@ export default function RegisterPage() {
         throw new Error(data.message || 'Something went wrong');
       }
       
-      localStorage.setItem('token', data.token);
-      localStorage.setItem('user', JSON.stringify(data.patient));
-      sessionStorage.setItem('showWelcome', 'true');
-      
-      setSuccess("Registration successful! Redirecting...");
+      setSuccess("Registration successful! Please login to continue.");
       
       setTimeout(() => {
-        router.push('/');
+        router.push('/login');
       }, 2000);
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Registration failed. Please try again.');
