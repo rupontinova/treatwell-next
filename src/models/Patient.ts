@@ -12,7 +12,10 @@ export interface IPatient extends Document {
   profilePicture?: string;
   resetPasswordToken?: string;
   resetPasswordExpire?: Date;
-  gender: 'Male' | 'Female' | 'Other';
+  otpCode?: string;
+  otpExpire?: Date;
+  isEmailVerified?: boolean;
+  gender: 'Male' | 'Female' | 'Other' | 'not-specified';
   dob: Date;
   nationalId: string;
   phone: string;
@@ -21,6 +24,7 @@ export interface IPatient extends Document {
   matchPassword(enteredPassword: string): Promise<boolean>;
   getSignedJwtToken(): string;
   getResetPasswordToken(): string;
+  generateOTP(): string;
 }
 
 const PatientSchema: Schema<IPatient> = new mongoose.Schema({
@@ -59,6 +63,10 @@ const PatientSchema: Schema<IPatient> = new mongoose.Schema({
     type: String,
     default: null,
   },
+  isEmailVerified: {
+    type: Boolean,
+    default: false,
+  },
   resetPasswordToken: {
     type: String,
     default: null,
@@ -67,10 +75,18 @@ const PatientSchema: Schema<IPatient> = new mongoose.Schema({
     type: Date,
     default: null,
   },
+  otpCode: {
+    type: String,
+    default: null,
+  },
+  otpExpire: {
+    type: Date,
+    default: null,
+  },
   gender: {
     type: String,
     required: [true, 'Please specify your gender'],
-    enum: ['Male', 'Female', 'Other'],
+    enum: ['Male', 'Female', 'Other', 'not-specified'],
   },
   dob: {
     type: Date,
@@ -108,14 +124,13 @@ PatientSchema.pre<IPatient>('save', async function (next) {
 // Sign JWT and return
 PatientSchema.methods.getSignedJwtToken = function (this: IPatient): string {
   const secret = process.env.JWT_SECRET;
-  const expiresIn = process.env.JWT_EXPIRE;
 
-  if (!secret || !expiresIn) {
-    throw new Error('JWT_SECRET or JWT_EXPIRE is not defined in environment variables');
+  if (!secret) {
+    throw new Error('JWT_SECRET is not defined in environment variables');
   }
 
   return jwt.sign({ id: this._id }, secret, {
-    expiresIn: expiresIn as any,
+    expiresIn: '30d', // Default to 30 days if JWT_EXPIRE is not set
   });
 };
 
@@ -140,6 +155,18 @@ PatientSchema.methods.getResetPasswordToken = function (this: IPatient): string 
   this.resetPasswordExpire = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
 
   return resetToken;
+};
+
+// Generate 4-digit OTP code
+PatientSchema.methods.generateOTP = function (this: IPatient): string {
+  // Generate 4-digit OTP
+  const otp = Math.floor(1000 + Math.random() * 9000).toString();
+  
+  // Set OTP and expiry time (15 minutes)
+  this.otpCode = otp;
+  this.otpExpire = new Date(Date.now() + 15 * 60 * 1000); // 15 minutes
+
+  return otp;
 };
 
 const PatientModel: Model<IPatient> = mongoose.models.Patient || mongoose.model<IPatient>('Patient', PatientSchema);

@@ -4,16 +4,9 @@ import { useState, useEffect, Suspense } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { IDoctor } from '@/models/Doctor';
-import { Stethoscope, User, Search, ArrowUp, ArrowDown } from 'lucide-react';
+import { Stethoscope, User, Search, ArrowUp, ArrowDown, ArrowLeft } from 'lucide-react';
 
-const specialities = [
-  'Cardiology',
-  'Neurology',
-  'Dermatology',
-  'Pediatrics',
-  'Orthopedics',
-  'General Medicine',
-];
+// Removed hard-coded specialities - now loaded dynamically
 
 function DoctorListComponent() {
   const router = useRouter();
@@ -21,12 +14,21 @@ function DoctorListComponent() {
   const [doctors, setDoctors] = useState<IDoctor[]>([]);
   const [searchName, setSearchName] = useState(searchParams.get('name') || '');
   const [searchSpeciality, setSearchSpeciality] = useState(searchParams.get('speciality') || '');
+  const [specialities, setSpecialities] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [sortConfig, setSortConfig] = useState<{
     key: string;
     direction: 'asc' | 'desc';
   }>({ key: 'sl', direction: 'asc' });
+
+  const handleGoBack = () => {
+    if (window.history.length > 1) {
+      router.back();
+    } else {
+      router.push('/');
+    }
+  };
 
   useEffect(() => {
     const fetchDoctors = async () => {
@@ -43,7 +45,21 @@ function DoctorListComponent() {
         setLoading(false);
       }
     };
+
+    const fetchSpecialities = async () => {
+      try {
+        const res = await fetch('/api/doctors/specialities');
+        if (res.ok) {
+          const data = await res.json();
+          setSpecialities(data.data);
+        }
+      } catch (error) {
+        console.error("Failed to fetch specialities", error);
+      }
+    };
+
     fetchDoctors();
+    fetchSpecialities();
   }, []);
 
   const handleSort = (key: string) => {
@@ -59,7 +75,7 @@ function DoctorListComponent() {
       .toLowerCase()
       .includes(searchName.toLowerCase());
     const specialityMatch =
-      !searchSpeciality || doctor.speciality === searchSpeciality;
+      !searchSpeciality || doctor.speciality.toLowerCase() === searchSpeciality.toLowerCase();
     return nameMatch && specialityMatch;
   });
 
@@ -90,12 +106,14 @@ function DoctorListComponent() {
         >
           TreatWell
         </div>
-        <Link
-          href="/"
-          className="text-gray-600 hover:text-blue-600 font-medium transition-colors"
+        <button
+          onClick={handleGoBack}
+          className="flex items-center gap-2 text-gray-600 hover:text-blue-600 font-medium transition-colors py-2 px-3 rounded-lg hover:bg-gray-100"
+          title="Go back to previous page"
         >
-          Back to Home
-        </Link>
+          <ArrowLeft className="w-5 h-5" />
+          <span className="hidden sm:inline">Back</span>
+        </button>
       </nav>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
@@ -216,6 +234,53 @@ function DoctorListComponent() {
           </>
         )}
       </main>
+
+      <footer className="bg-gray-800 text-white">
+        <div className="max-w-6xl mx-auto px-6 py-16">
+          <div className="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-5 gap-8">
+            <div className="col-span-2 lg:col-span-2">
+              <h3 className="text-2xl font-bold text-white mb-4">TreatWell</h3>
+              <p className="text-gray-400 max-w-sm">
+                Your comprehensive healthcare platform, connecting patients with doctors and providing tools for better health management.
+              </p>
+            </div>
+            
+            <div>
+              <h3 className="text-lg font-semibold mb-4">Quick Links</h3>
+              <ul className="space-y-2">
+                <li><button onClick={() => router.push("/doctor-list")} className="text-gray-400 hover:text-white transition">Find a Doctor</button></li>
+                <li><button onClick={() => router.push("/appointments")} className="text-gray-400 hover:text-white transition">Appointments</button></li>
+                <li><button onClick={() => router.push("/medical-history")} className="text-gray-400 hover:text-white transition">Medical History</button></li>
+                <li><button onClick={() => router.push("/health-tracker")} className="text-gray-400 hover:text-white transition">Health Tracker</button></li>
+                <li><button onClick={() => router.push("/login")} className="text-gray-400 hover:text-white transition">Login</button></li>
+              </ul>
+            </div>
+
+            <div>
+              <h3 className="text-lg font-semibold mb-4">Contact</h3>
+              <ul className="space-y-2 text-gray-400">
+                <li><p>Ruponti Muin Nova</p></li>
+                <li><p>Jawad Anzum Fahim</p></li>
+                <li className="pt-2"><a href="mailto:ruponti@gmail.com" className="hover:text-white transition">ruponti@gmail.com</a></li>
+              </ul>
+            </div>
+             <div>
+              <h3 className="text-lg font-semibold mb-4">Feedback</h3>
+               <p className="text-gray-400 mb-2 text-sm">We value your feedback!</p>
+              <button 
+                onClick={() => router.push("/")}
+                className="text-blue-400 hover:text-blue-300 transition font-semibold"
+              >
+                Send Feedback
+              </button>
+            </div>
+          </div>
+
+          <div className="border-t border-gray-700 mt-10 pt-8 text-center text-gray-500">
+            <p>&copy; {new Date().getFullYear()} TreatWell. All rights reserved.</p>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

@@ -4,19 +4,30 @@ import Appointment from '@/models/Appointment';
 import { v4 as uuidv4 } from 'uuid';
 
 export async function GET(req: NextRequest) {
-    await dbConnect();
-
     try {
-        const patientId = req.nextUrl.searchParams.get('patientId');
+        await dbConnect();
 
-        if (!patientId) {
+        const patientId = req.nextUrl.searchParams.get('patientId');
+        const doctorId = req.nextUrl.searchParams.get('doctorId');
+
+        let appointments;
+        if (patientId) {
+            appointments = await Appointment.find({ patientId }).sort({ createdAt: -1 });
+        } else if (doctorId) {
+            appointments = await Appointment.find({ doctorId }).sort({ createdAt: -1 });
+        } else {
             return NextResponse.json({ success: true, data: [] });
         }
         
-        const appointments = await Appointment.find({ patientId });
+        console.log(`Fetched ${appointments.length} appointments for ${doctorId ? 'doctor' : 'patient'} ID: ${doctorId || patientId}`);
         return NextResponse.json({ success: true, data: appointments });
     } catch (error: any) {
-        return NextResponse.json({ success: false, message: error.message }, { status: 500 });
+        console.error('Error fetching appointments:', error);
+        return NextResponse.json({ 
+            success: false, 
+            message: error.message || 'Failed to fetch appointments',
+            error: error.toString()
+        }, { status: 500 });
     }
 }
 
