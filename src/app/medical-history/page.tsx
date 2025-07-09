@@ -464,9 +464,9 @@ export default function PatientMedicalHistoryPage() {
                 </div>
                 <div className="mt-4 flex flex-wrap gap-2">
                   {healthData.bmiHistory.slice(-3).map((record, index) => (
-                    <div key={index} className="bg-blue-50 px-3 py-1 rounded-full text-sm">
-                      <span className="font-medium">{record.value}</span>
-                      <span className="text-gray-600 ml-1">
+                    <div key={index} className="bg-blue-100 px-3 py-1 rounded-full text-sm">
+                      <span className="font-bold text-blue-800">{record.value}</span>
+                      <span className="text-blue-700 ml-1">
                         ({new Date(record.date).toLocaleDateString()})
                       </span>
                     </div>
@@ -487,9 +487,9 @@ export default function PatientMedicalHistoryPage() {
                 </div>
                 <div className="mt-4 flex flex-wrap gap-2">
                   {healthData.bpHistory.slice(-3).map((record, index) => (
-                    <div key={index} className="bg-red-50 px-3 py-1 rounded-full text-sm">
-                      <span className="font-medium">{record.systolic}/{record.diastolic}</span>
-                      <span className="text-gray-600 ml-1">
+                    <div key={index} className="bg-red-100 px-3 py-1 rounded-full text-sm">
+                      <span className="font-bold text-red-800">{record.systolic}/{record.diastolic}</span>
+                      <span className="text-red-700 ml-1">
                         ({new Date(record.date).toLocaleDateString()})
                       </span>
                     </div>
