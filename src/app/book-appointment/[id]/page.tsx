@@ -248,19 +248,23 @@ export default function BookAppointment({ params }: { params: { id:string } }) {
                                 <Calendar className="w-5 h-5 mr-3 text-gray-400" />
                                 1. Select a Day
                             </label>
-                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
-                                {availableDays.map((day) => (
+                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3">
+                                {availableDays.map(({ dayName, dateString, fullDate, date }) => (
                                     <button
                                         type="button"
-                                        key={day.fullDate}
+                                        key={fullDate}
                                         onClick={() => {
-                                            setSelectedDay(day.dayName);
-                                            setSelectedDate(day.fullDate);
+                                            setSelectedDay(dayName);
+                                            setSelectedDate(date.toISOString());
                                         }}
-                                        className={`px-4 py-3 rounded-lg text-sm font-medium transition-all duration-200 border-2 text-left ${selectedDay === day.dayName ? 'bg-blue-600 text-white border-blue-600 shadow-lg' : 'bg-white hover:bg-blue-50 hover:border-blue-300 border-gray-200'}`}
+                                        className={`p-3 rounded-lg text-center transition-all duration-200 border-2 ${
+                                            selectedDate === date.toISOString()
+                                                ? 'bg-blue-600 text-white border-blue-700 shadow-lg scale-105'
+                                                : 'bg-gray-100 text-gray-800 border-gray-200 hover:bg-blue-100 hover:border-blue-300'
+                                        }`}
                                     >
-                                        <div className="font-semibold">{day.dayName}</div>
-                                        <div className="text-xs opacity-75">{day.dateString}</div>
+                                        <p className="font-bold text-sm">{dayName}</p>
+                                        <p className="text-xs">{dateString}</p>
                                     </button>
                                 ))}
                             </div>
@@ -271,21 +275,27 @@ export default function BookAppointment({ params }: { params: { id:string } }) {
                                 <Clock className="w-5 h-5 mr-3 text-gray-400" />
                                 2. Select a Time Slot
                             </label>
-                            <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-3">
+                            <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
                                 {availableTimeSlots.map((time) => (
                                     <button
                                         type="button"
                                         key={time}
                                         onClick={() => setSelectedTime(time)}
-                                        className={`px-4 py-2.5 rounded-lg text-sm font-medium transition-all duration-200 border-2 ${selectedTime === time ? 'bg-blue-600 text-white border-blue-600 shadow-lg' : 'bg-white hover:bg-blue-50 hover:border-blue-300 border-gray-200'}`}
+                                        className={`p-3 rounded-lg transition-all duration-200 border-2 ${
+                                            selectedTime === time
+                                                ? 'bg-blue-600 text-white border-blue-700 shadow-lg scale-105'
+                                                : 'bg-gray-100 text-gray-800 border-gray-200 hover:bg-blue-100 hover:border-blue-300'
+                                        }`}
                                     >
-                                        {time}
+                                        <span className="font-semibold text-sm">{time}</span>
                                     </button>
                                 ))}
                             </div>
                         </div>
 
-                        {error && <div className="p-4 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm font-medium text-center">❌ {error}</div>}
+                        <div className="pt-4">
+                            {error && <p className="text-red-600 font-medium mb-4 text-center">{error}</p>}
+                        </div>
                         {success && <div className="p-4 bg-green-50 border border-green-200 rounded-lg text-green-700 text-sm font-medium text-center">✅ {success}</div>}
                         
                         <div className="border-t border-gray-200 pt-6 text-center">
