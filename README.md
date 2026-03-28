@@ -41,13 +41,9 @@ TreatWell Next is your comprehensive healthcare management platform, designed to
 ## 📋 Project Management
 [![GitHub](https://img.shields.io/badge/GitHub-100000?style=for-the-badge&logo=github&logoColor=white)](https://github.com/yourusername/treatwell-next)
 
-## 🩺 Project Status
-![Build Status](https://img.shields.io/badge/Build-Passing-brightgreen?style=for-the-badge)
-![Code Quality](https://img.shields.io/badge/Code%20Quality-A-brightgreen?style=for-the-badge)
-![Test Coverage](https://img.shields.io/badge/Coverage-85%25-green?style=for-the-badge)
 
 ## 🌐 Live Demo
-Coming Soon...
+Currently under maintainance.
 
 ## 👥 Team Members
 
