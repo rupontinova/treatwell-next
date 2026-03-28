@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { useRouter } from 'next/navigation';
+import { useRouter, useParams } from 'next/navigation';
 import Link from 'next/link';
 import { IDoctor } from '@/models/Doctor';
 import { IPatient } from '@/models/Patient';
@@ -42,8 +42,9 @@ const getNextWeekDays = () => {
   return days;
 };
 
-export default function BookAppointment({ params }: { params: { id:string } }) {
+export default function BookAppointment() {
   const router = useRouter();
+  const { id: doctorId } = useParams() as { id: string };
   const [doctor, setDoctor] = useState<IDoctor | null>(null);
   const [patient, setPatient] = useState<IPatient | null>(null);
   const [selectedTime, setSelectedTime] = useState('');
@@ -58,7 +59,7 @@ export default function BookAppointment({ params }: { params: { id:string } }) {
   useEffect(() => {
     const fetchDoctorDetails = async () => {
       try {
-        const res = await fetch(`/api/doctors/${params.id}`);
+        const res = await fetch(`/api/doctors/${doctorId}`);
         const data = await res.json();
         if (!res.ok) {
           throw new Error(data.message || 'Failed to fetch doctor details');
@@ -71,10 +72,10 @@ export default function BookAppointment({ params }: { params: { id:string } }) {
       }
     };
 
-    if (params.id) {
+    if (doctorId) {
       fetchDoctorDetails();
     }
-  }, [params.id]);
+  }, [doctorId]);
 
   useEffect(() => {
     const userData = localStorage.getItem('user');

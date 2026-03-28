@@ -1,16 +1,10 @@
 "use client";
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import { User, Lock, ArrowRight, Eye, EyeOff } from "lucide-react";
 
-export default function LoginPage() {
-  const [username, setUsername] = useState("");
-  const [password, setPassword] = useState("");
-  const [error, setError] = useState("");
-  const [loading, setLoading] = useState(false);
-  const [googleLoading, setGoogleLoading] = useState(false);
-  const [showPassword, setShowPassword] = useState(false);
+function SearchParamsHandler({ setError }: { setError: (e: string) => void }) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -20,26 +14,32 @@ export default function LoginPage() {
     const userParam = searchParams.get('user');
     const welcomeParam = searchParams.get('welcome');
 
-    if (errorParam) {
-      setError(errorParam);
-    }
+    if (errorParam) setError(errorParam);
 
     if (tokenParam && userParam) {
       try {
         const userData = JSON.parse(userParam);
         localStorage.setItem('token', tokenParam);
         localStorage.setItem('user', JSON.stringify(userData));
-        
-        if (welcomeParam) {
-          sessionStorage.setItem('showWelcome', 'true');
-        }
-        
+        if (welcomeParam) sessionStorage.setItem('showWelcome', 'true');
         router.push('/');
       } catch {
         setError('Failed to process login information');
       }
     }
-  }, [searchParams, router]);
+  }, [searchParams, router, setError]);
+
+  return null;
+}
+
+export default function LoginPage() {
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
+  const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [googleLoading, setGoogleLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const router = useRouter();
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -111,6 +111,9 @@ export default function LoginPage() {
 
   return (
     <div className="min-h-screen flex">
+      <Suspense fallback={null}>
+        <SearchParamsHandler setError={setError} />
+      </Suspense>
       <div className="hidden lg:flex lg:w-1/2 relative">
         <div className="absolute inset-0 bg-[url('/login-bg.jpg')] bg-cover bg-center">
           <div className="absolute inset-0 bg-gradient-to-r from-blue-900/90 to-blue-800/80"></div>

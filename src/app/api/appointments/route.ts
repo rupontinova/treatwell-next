@@ -12,9 +12,9 @@ export async function GET(req: NextRequest) {
 
         let appointments;
         if (patientId) {
-            appointments = await Appointment.find({ patientId }).sort({ createdAt: -1 });
+            appointments = await Appointment.find({ patientId } as any).sort({ createdAt: -1 });
         } else if (doctorId) {
-            appointments = await Appointment.find({ doctorId }).sort({ createdAt: -1 });
+            appointments = await Appointment.find({ doctorId } as any).sort({ createdAt: -1 });
         } else {
             return NextResponse.json({ success: true, data: [] });
         }

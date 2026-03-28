@@ -57,7 +57,7 @@ export async function POST(request: NextRequest) {
     }
     
     // Check if doctor has already submitted a review
-    const existingReview = await ReviewDoctor.findOne({ doctorId: decoded.id });
+    const existingReview = await ReviewDoctor.findOne({ doctorId: decoded.id } as any);
     if (existingReview) {
       return NextResponse.json(
         { success: false, message: "You have already submitted a review" },

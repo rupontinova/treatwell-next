@@ -65,17 +65,17 @@ export async function POST(req: NextRequest) {
     }
 
     // Create new user with Google account
+    const googleId = data.id ?? 'unknown';
     const patient = await Patient.create({
-      username: data.email?.split('@')[0] || data.id,
-      fullName: data.name || 'Google User',
+      username: data.email?.split('@')[0] ?? googleId,
+      fullName: data.name ?? 'Google User',
       email: data.email,
-      googleId: data.id,
-      profilePicture: data.picture,
+      googleId,
+      profilePicture: data.picture ?? undefined,
       isEmailVerified: true,
-      // Set dummy values for required fields
       gender: 'not-specified',
       dob: new Date(),
-      nationalId: `google-${data.id}`,
+      nationalId: `google-${googleId}`,
       phone: 'not-provided',
       address: 'not-provided',
     });

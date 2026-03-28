@@ -11,9 +11,9 @@ export async function GET(req: NextRequest) {
 
     let prescription;
     if (appointmentId) {
-      prescription = await Prescription.findOne({ appointmentId });
+      prescription = await Prescription.findOne({ appointmentId } as any);
     } else if (prescriptionId) {
-      prescription = await Prescription.findOne({ prescriptionId });
+      prescription = await Prescription.findOne({ prescriptionId } as any);
     } else {
       return NextResponse.json({ success: false, message: 'appointmentId or prescriptionId is required' }, { status: 400 });
     }

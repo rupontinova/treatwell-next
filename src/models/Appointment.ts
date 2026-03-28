@@ -1,7 +1,6 @@
 import mongoose, { Document, Model, Schema } from 'mongoose';
 
 export interface IAppointment extends Document {
-  _id: Schema.Types.ObjectId;
   appointmentId: string;
   appointmentTime: string;
   patientId: Schema.Types.ObjectId;

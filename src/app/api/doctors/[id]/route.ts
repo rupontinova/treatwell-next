@@ -4,11 +4,12 @@ import Doctor from '@/models/Doctor';
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await dbConnect();
-    const doctor = await Doctor.findById(params.id);
+    const { id } = await params;
+    const doctor = await Doctor.findById(id);
 
     if (!doctor) {
       return NextResponse.json({ success: false, message: 'Doctor not found' }, { status: 404 });
@@ -22,20 +23,20 @@ export async function GET(
 
 export async function PUT(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await dbConnect();
+    const { id } = await params;
     const body = await req.json();
     const { name, username, phone, gender, speciality, location, designation, qualification, about } = body;
 
-    const doctor = await Doctor.findById(params.id);
+    const doctor = await Doctor.findById(id);
 
     if (!doctor) {
       return NextResponse.json({ success: false, message: 'Doctor not found' }, { status: 404 });
     }
 
-    // Update doctor information
     doctor.name = name || doctor.name;
     doctor.username = username || doctor.username;
     doctor.phone = phone || doctor.phone;
@@ -52,4 +53,4 @@ export async function PUT(
   } catch (error: any) {
     return NextResponse.json({ success: false, message: error.message }, { status: 500 });
   }
-} 
+}

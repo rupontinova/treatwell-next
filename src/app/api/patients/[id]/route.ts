@@ -4,11 +4,12 @@ import Patient from '@/models/Patient';
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await dbConnect();
-    const patient = await Patient.findById(params.id).select('-password -resetPasswordToken -resetPasswordExpire');
+    const { id } = await params;
+    const patient = await Patient.findById(id).select('-password -resetPasswordToken -resetPasswordExpire');
 
     if (!patient) {
       return NextResponse.json({ success: false, message: 'Patient not found' }, { status: 404 });
@@ -18,4 +19,4 @@ export async function GET(
   } catch (error: any) {
     return NextResponse.json({ success: false, message: error.message }, { status: 500 });
   }
-} 
+}

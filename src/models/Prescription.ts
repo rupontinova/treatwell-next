@@ -9,7 +9,6 @@ interface IMedication {
 }
 
 export interface IPrescription extends Document {
-  _id: Schema.Types.ObjectId;
   prescriptionId: string;
   appointmentId: Schema.Types.ObjectId;
   patientId: Schema.Types.ObjectId;

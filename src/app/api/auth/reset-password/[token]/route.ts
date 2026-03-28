@@ -5,10 +5,11 @@ import crypto from 'crypto';
 
 export async function POST(
   req: NextRequest,
-  { params }: { params: { token: string } }
+  { params }: { params: Promise<{ token: string }> }
 ) {
   try {
     await dbConnect();
+    const { token } = await params;
     const { newPassword } = await req.json();
 
     if (!newPassword) {
@@ -20,7 +21,7 @@ export async function POST(
 
     const resetPasswordToken = crypto
       .createHash('sha256')
-      .update(params.token)
+      .update(token)
       .digest('hex');
 
     const patient = await Patient.findOne({
@@ -42,4 +43,4 @@ export async function POST(
     console.error('Reset password error:', error);
     return NextResponse.json({ success: false, message: 'Internal server error' }, { status: 500 });
   }
-} 
+}

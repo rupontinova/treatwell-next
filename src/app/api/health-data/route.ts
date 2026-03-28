@@ -34,10 +34,10 @@ export async function GET(req: NextRequest) {
     // Use requested patientId if provided (for doctors accessing patient data), otherwise use current user ID
     const patientId = requestedPatientId || currentUserId;
 
-    let healthData = await HealthData.findOne({ patientId });
+    let healthData = await HealthData.findOne({ patientId } as any);
 
     if (!healthData) {
-      healthData = await HealthData.create({ patientId, bmiHistory: [], bpHistory: [] });
+      healthData = await HealthData.create({ patientId, bmiHistory: [], bpHistory: [] } as any);
     }
 
     return NextResponse.json({ success: true, data: healthData });
@@ -57,9 +57,9 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { type, data } = body;
 
-    let healthData = await HealthData.findOne({ patientId });
+    let healthData = await HealthData.findOne({ patientId } as any);
     if (!healthData) {
-      healthData = await HealthData.create({ patientId, bmiHistory: [], bpHistory: [] });
+      healthData = await HealthData.create({ patientId, bmiHistory: [], bpHistory: [] } as any);
     }
 
     if (type === 'bmi' && data.value) {
@@ -89,7 +89,7 @@ export async function DELETE(req: NextRequest) {
     const body = await req.json();
     const { type, index } = body;
 
-    let healthData = await HealthData.findOne({ patientId });
+    let healthData = await HealthData.findOne({ patientId } as any);
     if (!healthData) {
       return NextResponse.json({ success: false, message: 'Health data not found' }, { status: 404 });
     }

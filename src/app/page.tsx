@@ -1,5 +1,6 @@
 "use client";
-import React, { useRef, useState, useEffect } from "react";
+export const dynamic = 'force-dynamic';
+import React, { useRef, useState, useEffect, Suspense } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
 import { Search, Stethoscope, Calendar, HeartPulse, User, Star, ShieldCheck, LogOut, Send, Hourglass } from 'lucide-react';
 import { Notification } from '@/components/Notification';
@@ -119,6 +120,35 @@ const ReviewForm = ({
   </div>
 );
 
+function OAuthCallbackHandler({ onLogin }: { onLogin: () => void }) {
+  const searchParams = useSearchParams();
+
+  useEffect(() => {
+    const tokenParam = searchParams.get('token');
+    const userParam = searchParams.get('user');
+    const welcomeParam = searchParams.get('welcome');
+
+    if (tokenParam && userParam) {
+      try {
+        const userData = JSON.parse(userParam);
+        localStorage.setItem('token', tokenParam);
+        localStorage.setItem('user', JSON.stringify(userData));
+        if (welcomeParam) sessionStorage.setItem('showWelcome', 'true');
+        const url = new URL(window.location.href);
+        url.searchParams.delete('token');
+        url.searchParams.delete('user');
+        url.searchParams.delete('welcome');
+        window.history.replaceState({}, '', url.toString());
+        onLogin();
+      } catch (err) {
+        console.error('Failed to process OAuth callback:', err);
+      }
+    }
+  }, [searchParams, onLogin]);
+
+  return null;
+}
+
 export default function Home() {
   const servicesRef = useRef<HTMLDivElement>(null);
   const reviewsRef = useRef<HTMLDivElement>(null);
@@ -143,37 +173,7 @@ export default function Home() {
   });
   const [statisticsLoading, setStatisticsLoading] = useState(true);
   const router = useRouter();
-  const searchParams = useSearchParams();
-
   useEffect(() => {
-    // Handle OAuth callback parameters
-    const tokenParam = searchParams.get('token');
-    const userParam = searchParams.get('user');
-    const welcomeParam = searchParams.get('welcome');
-
-    if (tokenParam && userParam) {
-      try {
-        const userData = JSON.parse(userParam);
-        localStorage.setItem('token', tokenParam);
-        localStorage.setItem('user', JSON.stringify(userData));
-        
-        if (welcomeParam) {
-          sessionStorage.setItem('showWelcome', 'true');
-        }
-        
-        // Clean up URL parameters
-        const url = new URL(window.location.href);
-        url.searchParams.delete('token');
-        url.searchParams.delete('user');
-        url.searchParams.delete('welcome');
-        window.history.replaceState({}, '', url.toString());
-        
-        setIsLoggedIn(true);
-      } catch (err) {
-        console.error('Failed to process OAuth callback:', err);
-      }
-    }
-
     const token = localStorage.getItem('token');
     setIsLoggedIn(!!token);
 
@@ -245,7 +245,7 @@ export default function Home() {
     fetchSpecialities();
     fetchReviews();
     fetchStatistics();
-  }, [searchParams]);
+  }, []);
 
   // Auto-close welcome notification after 5 seconds
   useEffect(() => {
@@ -457,6 +457,9 @@ export default function Home() {
 
   return (
     <div className="min-h-screen bg-gray-50 flex flex-col font-sans">
+      <Suspense fallback={null}>
+        <OAuthCallbackHandler onLogin={() => setIsLoggedIn(true)} />
+      </Suspense>
       <Notification 
         message={welcomeMessage}
         isVisible={showWelcome}

@@ -4,11 +4,12 @@ import Appointment from '@/models/Appointment';
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await dbConnect();
-    const appointment = await Appointment.findById(params.id);
+    const { id } = await params;
+    const appointment = await Appointment.findById(id);
 
     if (!appointment) {
       return NextResponse.json({ success: false, message: 'Appointment not found' }, { status: 404 });
@@ -22,11 +23,12 @@ export async function GET(
 
 export async function DELETE(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await dbConnect();
-    const deletedAppointment = await Appointment.findByIdAndDelete(params.id);
+    const { id } = await params;
+    const deletedAppointment = await Appointment.findByIdAndDelete(id);
 
     if (!deletedAppointment) {
       return NextResponse.json({ success: false, message: 'Appointment not found' }, { status: 404 });
@@ -40,34 +42,22 @@ export async function DELETE(
 
 export async function PATCH(
   req: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     await dbConnect();
+    const { id } = await params;
     const { status, paymentStatus, paymentAmount } = await req.json();
 
     const updateData: any = {};
-
-    if (status) {
-      updateData.status = status;
-    }
-
+    if (status) updateData.status = status;
     if (paymentStatus) {
       updateData.paymentStatus = paymentStatus;
-      if (paymentStatus === 'paid') {
-        updateData.paymentDate = new Date();
-      }
+      if (paymentStatus === 'paid') updateData.paymentDate = new Date();
     }
+    if (paymentAmount) updateData.paymentAmount = paymentAmount;
 
-    if (paymentAmount) {
-      updateData.paymentAmount = paymentAmount;
-    }
-
-    const updatedAppointment = await Appointment.findByIdAndUpdate(
-      params.id,
-      updateData,
-      { new: true }
-    );
+    const updatedAppointment = await Appointment.findByIdAndUpdate(id, updateData, { new: true });
 
     if (!updatedAppointment) {
       return NextResponse.json({ success: false, message: 'Appointment not found' }, { status: 404 });
@@ -77,4 +67,4 @@ export async function PATCH(
   } catch (error: any) {
     return NextResponse.json({ success: false, message: error.message }, { status: 500 });
   }
-} 
+}
