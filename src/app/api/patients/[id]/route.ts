@@ -6,9 +6,8 @@ export async function GET(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  await dbConnect();
-
   try {
+    await dbConnect();
     const patient = await Patient.findById(params.id).select('-password -resetPasswordToken -resetPasswordExpire');
 
     if (!patient) {

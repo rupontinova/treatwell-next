@@ -10,9 +10,8 @@ const oauth2Client = new google.auth.OAuth2(
 );
 
 export async function POST(req: NextRequest) {
-  await dbConnect();
-
   try {
+    await dbConnect();
     const { code } = await req.json();
 
     if (!code) {

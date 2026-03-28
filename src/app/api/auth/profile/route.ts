@@ -8,9 +8,8 @@ interface DecodedToken {
 }
 
 export async function GET(req: NextRequest) {
-  await dbConnect();
-
   try {
+    await dbConnect();
     const token = req.headers.get('authorization')?.split(' ')[1];
 
     if (!token) {
@@ -34,9 +33,8 @@ export async function GET(req: NextRequest) {
 }
 
 export async function PUT(req: NextRequest) {
-  await dbConnect();
-
   try {
+    await dbConnect();
     const token = req.headers.get('authorization')?.split(' ')[1];
 
     if (!token) {

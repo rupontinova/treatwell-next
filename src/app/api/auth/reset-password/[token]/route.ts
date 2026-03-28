@@ -7,9 +7,8 @@ export async function POST(
   req: NextRequest,
   { params }: { params: { token: string } }
 ) {
-  await dbConnect();
-
   try {
+    await dbConnect();
     const { newPassword } = await req.json();
 
     if (!newPassword) {

@@ -6,9 +6,8 @@ import path from 'path';
 import bcrypt from 'bcryptjs';
 
 export async function POST(req: NextRequest) {
-  await dbConnect();
-
   try {
+    await dbConnect();
     const formData = await req.formData();
     
     const data: { [key: string]: any } = {};

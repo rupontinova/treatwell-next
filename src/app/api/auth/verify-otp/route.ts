@@ -3,9 +3,8 @@ import dbConnect from '@/lib/dbConnect';
 import Patient from '@/models/Patient';
 
 export async function POST(req: NextRequest) {
-  await dbConnect();
-
   try {
+    await dbConnect();
     const { email, otp } = await req.json();
 
     if (!email || !otp) {

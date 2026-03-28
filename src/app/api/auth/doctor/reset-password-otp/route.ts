@@ -4,9 +4,8 @@ import Doctor from '@/models/Doctor';
 import bcrypt from 'bcryptjs';
 
 export async function POST(req: NextRequest) {
-  await dbConnect();
-
   try {
+    await dbConnect();
     const { email, otp, newPassword } = await req.json();
 
     if (!email || !otp || !newPassword) {

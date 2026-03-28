@@ -3,9 +3,8 @@ import dbConnect from '@/lib/dbConnect';
 import Doctor from '@/models/Doctor';
 
 export async function GET(req: NextRequest) {
-  await dbConnect();
-
   try {
+    await dbConnect();
     let doctors = await Doctor.find({});
 
     if (doctors.length === 0) {

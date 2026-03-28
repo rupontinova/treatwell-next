@@ -11,9 +11,8 @@ const doctors = [
 ];
 
 export async function GET(req: NextRequest) {
-  await dbConnect();
-
   try {
+    await dbConnect();
     // Clear existing documents
     await BmdcDoctor.deleteMany({});
     

@@ -19,9 +19,8 @@ const createTransporter = () => {
 };
 
 export async function POST(req: NextRequest) {
-  await dbConnect();
-
   try {
+    await dbConnect();
     const { email } = await req.json();
 
     if (!email) {

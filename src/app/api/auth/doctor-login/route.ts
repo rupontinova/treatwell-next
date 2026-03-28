@@ -5,9 +5,8 @@ import BmdcDoctor from '@/models/BmdcDoctor';
 import jwt from 'jsonwebtoken';
 
 export async function POST(req: NextRequest) {
-  await dbConnect();
-
   try {
+    await dbConnect();
     const body = await req.json();
     const { action, username, password, bmdcNumber } = body;
 

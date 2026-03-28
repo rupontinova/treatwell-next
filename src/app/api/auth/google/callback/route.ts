@@ -10,9 +10,8 @@ const oauth2Client = new google.auth.OAuth2(
 );
 
 export async function GET(req: NextRequest) {
-  await dbConnect();
-
   try {
+    await dbConnect();
     const { searchParams } = new URL(req.url);
     const code = searchParams.get('code');
     const error = searchParams.get('error');

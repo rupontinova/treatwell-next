@@ -21,9 +21,8 @@ const getPatientId = (req: NextRequest): string | null => {
 };
 
 export async function GET(req: NextRequest) {
-  await dbConnect();
-
   try {
+    await dbConnect();
     const url = new URL(req.url);
     const requestedPatientId = url.searchParams.get('patientId');
     
@@ -48,9 +47,8 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  await dbConnect();
-
   try {
+    await dbConnect();
     const patientId = getPatientId(req);
     if (!patientId) {
       return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 });
@@ -81,9 +79,8 @@ export async function POST(req: NextRequest) {
 }
 
 export async function DELETE(req: NextRequest) {
-  await dbConnect();
-
   try {
+    await dbConnect();
     const patientId = getPatientId(req);
     if (!patientId) {
       return NextResponse.json({ success: false, message: 'Unauthorized' }, { status: 401 });

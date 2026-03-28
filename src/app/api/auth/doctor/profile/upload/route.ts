@@ -11,9 +11,8 @@ interface DecodedToken {
 }
 
 export async function POST(request: NextRequest) {
-  await dbConnect();
-
   try {
+    await dbConnect();
     const token = request.headers.get("authorization")?.split(" ")[1];
     if (!token) {
       return NextResponse.json({ message: "No token provided" }, { status: 401 });

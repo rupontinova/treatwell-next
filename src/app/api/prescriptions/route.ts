@@ -4,9 +4,8 @@ import Prescription from '@/models/Prescription';
 import { v4 as uuidv4 } from 'uuid';
 
 export async function GET(req: NextRequest) {
-  await dbConnect();
-
   try {
+    await dbConnect();
     const appointmentId = req.nextUrl.searchParams.get('appointmentId');
     const prescriptionId = req.nextUrl.searchParams.get('prescriptionId');
 
@@ -26,9 +25,8 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-  await dbConnect();
-
   try {
+    await dbConnect();
     const body = await req.json();
     const prescriptionData = { 
       ...body, 

@@ -32,9 +32,8 @@ export async function GET(req: NextRequest) {
 }
 
 export async function POST(req: NextRequest) {
-    await dbConnect();
-    
     try {
+        await dbConnect();
         const body = await req.json();
         const appointmentData = { ...body, appointmentId: uuidv4() };
         const newAppointment = await Appointment.create(appointmentData);

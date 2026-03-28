@@ -3,9 +3,8 @@ import dbConnect from '@/lib/dbConnect';
 import Doctor from '@/models/Doctor';
 
 export async function GET(req: NextRequest) {
-  await dbConnect();
-
   try {
+    await dbConnect();
     // Get all unique specialities from the Doctor collection
     const specialities = await Doctor.distinct('speciality');
     

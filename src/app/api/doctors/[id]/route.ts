@@ -6,9 +6,8 @@ export async function GET(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  await dbConnect();
-
   try {
+    await dbConnect();
     const doctor = await Doctor.findById(params.id);
 
     if (!doctor) {
@@ -25,9 +24,8 @@ export async function PUT(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  await dbConnect();
-
   try {
+    await dbConnect();
     const body = await req.json();
     const { name, username, phone, gender, speciality, location, designation, qualification, about } = body;
 

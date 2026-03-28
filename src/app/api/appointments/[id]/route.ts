@@ -6,9 +6,8 @@ export async function GET(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  await dbConnect();
-
   try {
+    await dbConnect();
     const appointment = await Appointment.findById(params.id);
 
     if (!appointment) {
@@ -25,9 +24,8 @@ export async function DELETE(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  await dbConnect();
-
   try {
+    await dbConnect();
     const deletedAppointment = await Appointment.findByIdAndDelete(params.id);
 
     if (!deletedAppointment) {
@@ -44,9 +42,8 @@ export async function PATCH(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  await dbConnect();
-
   try {
+    await dbConnect();
     const { status, paymentStatus, paymentAmount } = await req.json();
 
     const updateData: any = {};
